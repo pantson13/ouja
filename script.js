@@ -105,7 +105,7 @@ const ANIMATION_CONFIG = {
     // 只允许卡片从红框上方往下跨过顶部边界进入；左右/下方都不能触发插入。
     cardSlot: {
       // 调试：显示蛇杖红色插卡区域，位置/大小确认后可改回 false。
-      showDebug: true,
+      showDebug: false,
       x: -10,
       y: -600,
       width: 400,
