@@ -91,7 +91,7 @@ const ANIMATION_CONFIG = {
     // 蛇杖整体容器：x / y 为整体基准位置；slideX 为从 BS 弹出的距离。
     // scale 为整个蛇杖本体缩放倍率：1 = 原大小，0.8 = 80%，1.2 = 120%。
     // 只缩放 sz1 / sz2 / syfg / 卡槽及其内部偏移，不改变整个容器的 x / y / slideX。
-    container: { x: 0, y: 500, slideX: -510, scale: 1.2, duration: 0.42 },
+    container: { x: 0, y: 500, slideX: -510, scale: 1.3, duration: 0.42 },
 
     // 蛇杖遮挡层 sz1。点击 sz1 后，最底层 sz2 弹出。
     sz1: { x: 5, y: -410, width: 630 },
