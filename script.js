@@ -1,11 +1,11 @@
-/* OUJA v117: Ryuki interaction base + 12 SW cards */
+/* OUJA v118: Ryuki interaction base + 12 WS cards */
 
 /*
  * iPhone 16 Pro Max 参数区
  * 目标画布：440 × 956 CSS px（竖屏）。
  * 坐标仍以 1179 × 2556 原始背景像素为单位，方便直接微调。
  */
-const PWA_BUILD = "117";
+const PWA_BUILD = "118";
 window.__RYUKI_BUILD__ = `v${PWA_BUILD}`;
 document.documentElement.dataset.ryukiBuild = `v${PWA_BUILD}`;
 // 每次真正启动 App 都使用不同会话标识。关键媒体在同一 build 下也不会复用上一次 PWA 进程里的媒体响应。
@@ -57,8 +57,8 @@ const ANIMATION_CONFIG = {
     // 卡盒向右抽出成功时，bg3 + 腰带镜面碎裂并消失。
     duration: 0.72,
   },
-  lq: {
-    // OUJA 的 12 张 SW 卡片。三排四列；仍沿用 Ryuki 原有 lq-card 交互。
+  ws: {
+    // OUJA 的 12 张 WS 卡片。三排四列；仍沿用 Ryuki 原有 ws-card 交互。
     // x / y 控制整组位置，cardWidth 控制统一显示宽度，gapX / gapY 控制间距，均可直接自定义。
     // 原图约 211×307 px，因此默认 cardWidth=211，图片高度按各自原始比例自动计算。
     x: -460,
@@ -144,8 +144,8 @@ const ANIMATION_CONFIG = {
       },
     },
 
-    // 龙召机弹出期间，下方 lq 区域虚化强度。
-    lqBlur: 7,
+    // 龙召机弹出期间，下方 ws 区域虚化强度。
+    wsBlur: 7,
   },
   beltLayers: {
     up: { x: -20, y: 0 },
@@ -181,30 +181,30 @@ const ANIMATION_CONFIG = {
 
 // 音效文件放在仓库 assets/audio/ 下；如文件格式不同，只改这里即可。
 const AUDIO_CONFIG = {
-  kh1: "./assets/audio/kh1.mp3?av=117",
-  ydmusic: "./assets/audio/ydmusic.mp3?av=117",
-  charu: "./assets/audio/charu.mp3?av=117",
-  mocha: "./assets/audio/mocha.mp3?av=117",
-  chouka: "./assets/audio/chouka.mp3?av=117",
-  chaka: "./assets/audio/chaka.mp3?av=117",
-  huagai1: "./assets/audio/huagai1.mp3?av=117",
-  huagai2: "./assets/audio/huagai2.mp3?av=117",
-  guo: "./assets/audio/guo.mp3?av=117",
-  boxing: "./assets/audio/boxing.mp3?av=117",
-  jianji: "./assets/audio/jianji.mp3?av=117",
+  kh1: "./assets/audio/kh1.mp3?av=118",
+  ydmusic: "./assets/audio/ydmusic.mp3?av=118",
+  charu: "./assets/audio/charu.mp3?av=118",
+  mocha: "./assets/audio/mocha.mp3?av=118",
+  chouka: "./assets/audio/chouka.mp3?av=118",
+  chaka: "./assets/audio/chaka.mp3?av=118",
+  huagai1: "./assets/audio/huagai1.mp3?av=118",
+  huagai2: "./assets/audio/huagai2.mp3?av=118",
+  guo: "./assets/audio/guo.mp3?av=118",
+  boxing: "./assets/audio/boxing.mp3?av=118",
+  jianji: "./assets/audio/jianji.mp3?av=118",
   cardVoices: {
-    1: "./assets/audio/j.mp3?av=117",
-    2: "./assets/audio/q.mp3?av=117",
-    3: "./assets/audio/d.mp3?av=117",
-    4: "./assets/audio/l.mp3?av=117",
-    5: "./assets/audio/f.mp3?av=117",
-    6: "./assets/audio/hc.mp3?av=117",
+    1: "./assets/audio/j.mp3?av=118",
+    2: "./assets/audio/q.mp3?av=118",
+    3: "./assets/audio/d.mp3?av=118",
+    4: "./assets/audio/l.mp3?av=118",
+    5: "./assets/audio/f.mp3?av=118",
+    6: "./assets/audio/hc.mp3?av=118",
   },
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
-    1: "./assets/audio/jianjianglin.mp3?av=117",
-    4: "./assets/audio/longjiao.mp3?av=117",
-    5: "./assets/audio/bsj.mp3?av=117",
+    1: "./assets/audio/jianjianglin.mp3?av=118",
+    4: "./assets/audio/longjiao.mp3?av=118",
+    5: "./assets/audio/bsj.mp3?av=118",
   },
 };
 
@@ -243,8 +243,8 @@ const beltEffect = document.querySelector("#beltEffect");
 const cardBox = document.querySelector("#cardBox");
 const cardTrigger = document.querySelector("#cardTrigger");
 const bg4Center = document.querySelector(".character-merge-center");
-const lqPanel = document.querySelector("#lqPanel");
-const lqButtons = [...document.querySelectorAll(".lq-card")];
+const wsPanel = document.querySelector("#wsPanel");
+const wsButtons = [...document.querySelectorAll(".ws-card")];
 const kpcLayer = document.querySelector("#kpcLayer");
 const bsButton = document.querySelector("#bsButton");
 const auxDock = document.querySelector("#auxDock");
@@ -324,8 +324,8 @@ let bg5TransitionTimer = 0;
 let shatterCleanupTimer = 0;
 let shatterAnimationFrame = 0;
 let charuBg4SyncFrame = 0;
-let selectedLq = null;
-let selectedLqAspectRatio = null;
+let selectedWs = null;
+let selectedWsAspectRatio = null;
 let cardVoiceRunToken = 0;
 let extractReady = false;
 let isExtracting = false;
@@ -569,7 +569,7 @@ function applyPhoneLayout() {
   );
   sceneScale = scale;
 
-  const { sequenceDuration, stageTwo, move, bg3, bg4, bg5, shatter, lq, sideButtons, centerButtons, auxDevice, beltLayers, card, beltGlow } = ANIMATION_CONFIG;
+  const { sequenceDuration, stageTwo, move, bg3, bg4, bg5, shatter, ws, sideButtons, centerButtons, auxDevice, beltLayers, card, beltGlow } = ANIMATION_CONFIG;
 
   scene.style.setProperty("--belt-width", `${SOURCE_BELT_WIDTH * scale}px`);
   scene.style.setProperty("--final-x", `${move.x * scale}px`);
@@ -584,13 +584,13 @@ function applyPhoneLayout() {
   scene.style.setProperty("--bg4-duration", `${bg4.duration}s`);
   scene.style.setProperty("--bg5-duration", `${bg5.duration}s`);
   scene.style.setProperty("--shatter-duration", `${shatter.duration}s`);
-  scene.style.setProperty("--lq-x", `${lq.x * scale}px`);
-  scene.style.setProperty("--lq-y", `${lq.y * scale}px`);
-  scene.style.setProperty("--lq-card-width", `${lq.cardWidth * scale}px`);
-  scene.style.setProperty("--lq-gap-x", `${lq.gapX * scale}px`);
-  scene.style.setProperty("--lq-gap-y", `${lq.gapY * scale}px`);
-  scene.style.setProperty("--lq-entry", `${lq.entryDistance * scale}px`);
-  scene.style.setProperty("--lq-duration", `${lq.duration}s`);
+  scene.style.setProperty("--ws-x", `${ws.x * scale}px`);
+  scene.style.setProperty("--ws-y", `${ws.y * scale}px`);
+  scene.style.setProperty("--ws-card-width", `${ws.cardWidth * scale}px`);
+  scene.style.setProperty("--ws-gap-x", `${ws.gapX * scale}px`);
+  scene.style.setProperty("--ws-gap-y", `${ws.gapY * scale}px`);
+  scene.style.setProperty("--ws-entry", `${ws.entryDistance * scale}px`);
+  scene.style.setProperty("--ws-duration", `${ws.duration}s`);
   scene.style.setProperty("--side-buttons-x", `${sideButtons.x * scale}px`);
   scene.style.setProperty("--side-buttons-y", `${sideButtons.y * scale}px`);
   scene.style.setProperty("--side-button-size", `${sideButtons.size * scale}px`);
@@ -637,7 +637,7 @@ function applyPhoneLayout() {
   scene.style.setProperty("--card-slot-card-width", `${auxDevice.cardSlot.cardWidth * scale}px`);
   scene.classList.toggle("show-card-slot-debug", Boolean(auxDevice.cardSlot.showDebug));
   scene.classList.toggle("show-lyfg-tuning", Boolean(auxDevice.lyfg.showForTuning));
-  scene.style.setProperty("--aux-lq-blur", `${auxDevice.lqBlur}px`);
+  scene.style.setProperty("--aux-ws-blur", `${auxDevice.wsBlur}px`);
   scene.style.setProperty("--card-start-x", `${card.start.x * scale}px`);
   scene.style.setProperty("--card-start-y", `${card.start.y * scale}px`);
   scene.style.setProperty("--card-drag-x", `${cardDragPosition.x * scale}px`);
@@ -1214,19 +1214,19 @@ function setCenterActionsUnlocked(unlocked) {
   syncCenterActionButtons();
 }
 
-function hideLqPanel() {
-  scene.classList.remove("show-lq");
-  lqButtons.forEach((button) => button.classList.remove("is-selected"));
-  selectedLq = null;
-  selectedLqAspectRatio = null;
+function hideWsPanel() {
+  scene.classList.remove("show-ws");
+  wsButtons.forEach((button) => button.classList.remove("is-selected"));
+  selectedWs = null;
+  selectedWsAspectRatio = null;
   cardVoiceRunToken += 1;
   cardBox.classList.remove("is-kpc-ejected");
   if (auxOpen || auxArmed || auxCardInserted || auxKpcHasBeenPulled || auxKpcDragging) resetAuxDevice();
 }
 
-function showLqPanel() {
+function showWsPanel() {
   if (!flowStarted) return;
-  scene.classList.add("show-lq");
+  scene.classList.add("show-ws");
 }
 
 function enableCardExtraction() {
@@ -1241,39 +1241,39 @@ function enableCardExtraction() {
   cardBox.classList.add("is-extractable");
 }
 
-function updateSelectedLqAspectRatio(button) {
+function updateSelectedWsAspectRatio(button) {
   const image = button?.querySelector("img");
   if (!image) {
-    selectedLqAspectRatio = null;
+    selectedWsAspectRatio = null;
     return;
   }
 
   const applyNaturalRatio = () => {
-    if (button.dataset.lq !== String(selectedLq)) return;
+    if (button.dataset.ws !== String(selectedWs)) return;
     if (image.naturalWidth > 0 && image.naturalHeight > 0) {
-      selectedLqAspectRatio = image.naturalWidth / image.naturalHeight;
+      selectedWsAspectRatio = image.naturalWidth / image.naturalHeight;
     }
   };
 
   applyNaturalRatio();
-  if (!selectedLqAspectRatio) {
+  if (!selectedWsAspectRatio) {
     image.decode?.().then(applyNaturalRatio).catch(() => undefined);
   }
 }
 
-function selectLqCard(event) {
-  if (!flowStarted || !scene.classList.contains("show-lq")) return;
+function selectWsCard(event) {
+  if (!flowStarted || !scene.classList.contains("show-ws")) return;
   const button = event.currentTarget;
-  selectedLq = button.dataset.lq;
-  selectedLqAspectRatio = null;
-  updateSelectedLqAspectRatio(button);
-  lqButtons.forEach((item) => item.classList.toggle("is-selected", item === button));
+  selectedWs = button.dataset.ws;
+  selectedWsAspectRatio = null;
+  updateSelectedWsAspectRatio(button);
+  wsButtons.forEach((item) => item.classList.toggle("is-selected", item === button));
   // 选卡只记录卡种与正面真实宽高比，不再自动把腰带里的 KPC 向左推出。
   cardBox.classList.remove("is-kpc-ejected");
 }
 
 async function playSelectedCardVoiceWithLyfg() {
-  const cardId = selectedLq ? String(selectedLq) : "";
+  const cardId = selectedWs ? String(selectedWs) : "";
   const audio = cardId ? cardVoiceAudios[cardId] || null : null;
   const followUpAudio = cardId ? cardVoiceFollowUpAudios[cardId] || null : null;
   const runToken = ++cardVoiceRunToken;
@@ -1307,7 +1307,7 @@ async function playSelectedCardVoiceWithLyfg() {
     // j→jianjianglin、l→longjiao、f→bsj；其余卡片没有追加音效。
     if (followUpAudio) {
       playAudio(followUpAudio).catch((error) => {
-        console.warn(`LQ${cardId} 追加音效播放失败：`, error);
+        console.warn(`WS${cardId} 追加音效播放失败：`, error);
       });
     }
   };
@@ -1330,7 +1330,7 @@ async function playSelectedCardVoiceWithLyfg() {
     lyfgImage?.classList.add("is-active");
   } catch (error) {
     cleanupCurrentRun();
-    console.warn(`LQ${cardId} 对应卡片音效播放失败：`, error);
+    console.warn(`WS${cardId} 对应卡片音效播放失败：`, error);
   }
 }
 
@@ -1433,7 +1433,7 @@ function toggleAuxDock(event) {
   event?.preventDefault();
   event?.stopPropagation();
   // 必须先选中一张下方卡，BS 才开启对应卡种的流程。
-  if (!flowStarted || !scene.classList.contains("show-lq") || !selectedLq) return;
+  if (!flowStarted || !scene.classList.contains("show-ws") || !selectedWs) return;
 
   if (auxOpen) {
     resetAuxDevice();
@@ -1480,7 +1480,7 @@ function runLzjReturnedActions(hadInsertedCard, token) {
   });
 
   // 有卡时仍保持 huagai2 -> 读卡音效 的原顺序，只是整体延后到复位完成后。
-  if (hadInsertedCard && selectedLq) {
+  if (hadInsertedCard && selectedWs) {
     auxResultPlayed = true;
     scene.classList.add("is-aux-playing");
     auxDock?.classList.add("is-playing");
@@ -1552,22 +1552,22 @@ function handleLzjClick(event) {
   waitForLzjReturn(hadInsertedCard);
 }
 
-function getSelectedLqImageSrc() {
-  if (!selectedLq) return null;
-  const button = lqButtons.find((item) => item.dataset.lq === String(selectedLq));
+function getSelectedWsImageSrc() {
+  if (!selectedWs) return null;
+  const button = wsButtons.find((item) => item.dataset.ws === String(selectedWs));
   return button?.querySelector("img")?.getAttribute("src") || null;
 }
 
-function getSelectedLqAspectRatio() {
-  if (Number.isFinite(selectedLqAspectRatio) && selectedLqAspectRatio > 0) {
-    return selectedLqAspectRatio;
+function getSelectedWsAspectRatio() {
+  if (Number.isFinite(selectedWsAspectRatio) && selectedWsAspectRatio > 0) {
+    return selectedWsAspectRatio;
   }
-  if (!selectedLq) return null;
-  const button = lqButtons.find((item) => item.dataset.lq === String(selectedLq));
+  if (!selectedWs) return null;
+  const button = wsButtons.find((item) => item.dataset.ws === String(selectedWs));
   const image = button?.querySelector("img");
   if (image?.naturalWidth > 0 && image.naturalHeight > 0) {
-    selectedLqAspectRatio = image.naturalWidth / image.naturalHeight;
-    return selectedLqAspectRatio;
+    selectedWsAspectRatio = image.naturalWidth / image.naturalHeight;
+    return selectedWsAspectRatio;
   }
   return null;
 }
@@ -1589,16 +1589,16 @@ function handoffAuxKpcToFloatingCard(event) {
   const left = cardRect.left - auxDragLayerViewportOrigin.left;
   const top = cardRect.top - auxDragLayerViewportOrigin.top;
 
-  const selectedSrc = getSelectedLqImageSrc();
+  const selectedSrc = getSelectedWsImageSrc();
   if (auxTransferCardImage) auxTransferCardImage.src = selectedSrc || "./assets/images/kpc.png";
   auxTransferCard.classList.remove("is-consumed", "is-inserted");
   lzjButton?.classList.remove("is-result-ready");
 
   // 完全抽出这一帧直接变成所选卡片正面，不执行 rotateY / animation。
-  // v98：正面外层容器必须使用“所选 LQ 图片真实宽高比”。
+  // v98：正面外层容器必须使用“所选 WS 图片真实宽高比”。
   // 旧版沿用 KPC 背面比例，导致图片视觉高度大于容器高度，出现“下半张看得到但摸不到”。
   const originalAspectRatio = cardRect.height > 0 ? cardRect.width / cardRect.height : 1;
-  auxKpcAspectRatio = getSelectedLqAspectRatio() || originalAspectRatio;
+  auxKpcAspectRatio = getSelectedWsAspectRatio() || originalAspectRatio;
   const configuredFrontWidth = ANIMATION_CONFIG.auxDevice.kpcDrag?.flippedWidth;
   const frontWidth = Number.isFinite(configuredFrontWidth) && configuredFrontWidth > 0
     ? configuredFrontWidth * scale
@@ -2169,8 +2169,8 @@ function resetToCard() {
   bg5RunId = 0;
   centerActionsUnlocked = false;
   scene.classList.remove("show-center-actions");
-  selectedLq = null;
-  selectedLqAspectRatio = null;
+  selectedWs = null;
+  selectedWsAspectRatio = null;
   extractReady = false;
   isExtracting = false;
   extractPointerId = null;
@@ -2186,10 +2186,10 @@ function resetToCard() {
   resetCardGesture();
 
   scene.classList.add("is-resetting");
-  scene.classList.remove("show-final-background", "show-bg4", "show-bg5", "show-bg3", "show-lq", "is-shattering", "is-aux-open", "is-aux-armed", "is-aux-card-inserted");
+  scene.classList.remove("show-final-background", "show-bg4", "show-bg5", "show-bg3", "show-ws", "is-shattering", "is-aux-open", "is-aux-armed", "is-aux-card-inserted");
   belt.classList.remove("is-ready", "is-stage-two", "is-stage-two-front", "is-moving", "is-card-powered", "is-shatter-hidden");
   cardBox.classList.remove("is-handoff", "is-inserting", "is-inserted", "is-card-powered", "is-extractable", "is-extracting", "is-detached", "is-kpc-ejected", "is-kpc-aux-hidden");
-  lqButtons.forEach((button) => button.classList.remove("is-selected"));
+  wsButtons.forEach((button) => button.classList.remove("is-selected"));
   cardTrigger.classList.remove("is-waiting", "is-hidden", "is-replay-waiting");
   void scene.offsetWidth;
   scene.classList.remove("is-resetting");
@@ -2234,7 +2234,7 @@ function completeCardInsertion(pointerId) {
 
   cardBox.classList.remove("is-inserting", "is-inserted", "is-card-powered", "is-extractable", "is-extracting", "is-detached", "is-kpc-ejected");
   setCardExtractPosition(0, 0);
-  hideLqPanel();
+  hideWsPanel();
   belt.classList.remove("is-card-powered");
   cardBox.classList.add("is-handoff");
   void cardBox.offsetWidth;
@@ -2402,7 +2402,7 @@ function completeInsertionAfterCharu(runId) {
   charuPlaybackRunId = 0;
   charuPlaybackMode = null;
   setFlowPhase(FLOW_PHASE.READY);
-  showLqPanel();
+  showWsPanel();
   enableCardExtraction();
 }
 
@@ -2440,7 +2440,7 @@ function recoverInsertionWithoutCharu(runId) {
     ) return;
     hideInsertionGlows();
     setFlowPhase(FLOW_PHASE.READY);
-    showLqPanel();
+    showWsPanel();
     enableCardExtraction();
   }, (ANIMATION_CONFIG.bg4.duration + ANIMATION_CONFIG.bg5.duration) * 1000));
 }
@@ -2692,7 +2692,7 @@ function completeCardExtraction(pointerId) {
   dragReady = true;
   activePointerId = null;
   parallelReached = false;
-  hideLqPanel();
+  hideWsPanel();
 
   // 卡盒真正离开腰带后，彻底作废这一轮仍未结束的 bg4/bg5 回调。
   // 先固定到 bg3 再做碎裂，避免旧 animationend/timeout 在下一轮流程里重新塞回背景。
@@ -2837,7 +2837,7 @@ function replayStageTwoFromExtractedCard(event) {
   cardTrigger.setAttribute("aria-label", "第二阶段播放中，完成后可重新插入卡盒");
 
   clearMirrorShatter();
-  hideLqPanel();
+  hideWsPanel();
   cancelBgSequence();
   scene.classList.remove("show-bg3", "show-final-background", "is-shattering");
   belt.classList.remove("is-moving", "is-card-powered", "is-stage-two-front", "is-shatter-hidden");
@@ -2932,7 +2932,7 @@ cardBox.addEventListener("pointermove", handleExtractPointerMove);
 cardBox.addEventListener("pointerup", handleExtractPointerEnd);
 cardBox.addEventListener("pointercancel", handleExtractPointerEnd);
 cardBox.addEventListener("contextmenu", (event) => event.preventDefault());
-lqButtons.forEach((button) => button.addEventListener("click", selectLqCard));
+wsButtons.forEach((button) => button.addEventListener("click", selectWsCard));
 kpcLayer.addEventListener("pointerdown", (event) => {
   // iPhone/触屏走下面独立的 Touch Events 主通道，避免 Pointer Capture 生命周期造成松手后延迟。
   if (event.pointerType === "touch") return;

@@ -1,7 +1,7 @@
-// OUJA v117: atomic core update. Ryuki interaction base + 12 SW cards.
-const BUILD = "117";
+// OUJA v118: atomic core update. Ryuki interaction base + 12 WS cards.
+const BUILD = "118";
 const CACHE_PREFIX = "ryuki-pwa-";
-const CACHE_NAME = "ryuki-pwa-v117-stable";
+const CACHE_NAME = "ryuki-pwa-v118-stable";
 const INSTALL_CACHE_NAME = `${CACHE_NAME}-install`;
 const INDEX_FALLBACK = `./index.html?appv=${BUILD}`;
 
@@ -35,18 +35,18 @@ const REQUIRED_ASSETS = [
 
 // 不影响第二阶段/整卡盒主流程的资源允许后续按需缓存。
 const OPTIONAL_ASSETS = [
-  "./assets/images/sw1.png",
-  "./assets/images/sw2.png",
-  "./assets/images/sw3.png",
-  "./assets/images/sw4.png",
-  "./assets/images/sw5.png",
-  "./assets/images/sw6.png",
-  "./assets/images/sw7.png",
-  "./assets/images/sw8.png",
-  "./assets/images/sw9.png",
-  "./assets/images/sw10.png",
-  "./assets/images/sw11.png",
-  "./assets/images/sw12.png",
+  "./assets/images/ws1.png",
+  "./assets/images/ws2.png",
+  "./assets/images/ws3.png",
+  "./assets/images/ws4.png",
+  "./assets/images/ws5.png",
+  "./assets/images/ws6.png",
+  "./assets/images/ws7.png",
+  "./assets/images/ws8.png",
+  "./assets/images/ws9.png",
+  "./assets/images/ws10.png",
+  "./assets/images/ws11.png",
+  "./assets/images/ws12.png",
   "./assets/images/bs.png",
   "./assets/images/lzj.png",
   "./assets/images/lzj2.png",

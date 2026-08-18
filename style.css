@@ -1,4 +1,4 @@
-/* OUJA v117: Ryuki interaction base + 12 SW cards */
+/* OUJA v118: Ryuki interaction base + 12 WS cards */
 
 :root {
   color-scheme: dark;
@@ -50,13 +50,13 @@ body {
   --bg4-duration: 1.2s;
   --bg5-duration: 0.5s;
   --shatter-duration: 0.72s;
-  --lq-x: -500px;
-  --lq-y: 420px;
-  --lq-card-width: 180px;
-  --lq-gap-x: 25px;
-  --lq-gap-y: 25px;
-  --lq-entry: 420px;
-  --lq-duration: 0.45s;
+  --ws-x: -500px;
+  --ws-y: 420px;
+  --ws-card-width: 180px;
+  --ws-gap-x: 25px;
+  --ws-gap-y: 25px;
+  --ws-entry: 420px;
+  --ws-duration: 0.45s;
   --bs-x: 520px;
   --bs-y: 330px;
   --bs-width: 150px;
@@ -80,7 +80,7 @@ body {
   --card-slot-card-x: 0px;
   --card-slot-card-y: 18px;
   --card-slot-card-width: 280px;
-  --aux-lq-blur: 7px;
+  --aux-ws-blur: 7px;
   --card-extract-x: 0px;
   --card-extract-y: 0px;
   --stage-two-wave-duration: 1s;
@@ -736,25 +736,25 @@ body {
   opacity: 1;
 }
 
-/* 十二张 SW：三排四列。交互继续沿用 Ryuki 的 lq-card 事件逻辑。 */
-.lq-panel {
+/* 十二张 WS：三排四列。交互继续沿用 Ryuki 的 ws-card 事件逻辑。 */
+.ws-panel {
   position: absolute;
   z-index: 6;
   top: 50%;
   left: 50%;
   display: grid;
-  grid-template-columns: repeat(4, var(--lq-card-width));
+  grid-template-columns: repeat(4, var(--ws-card-width));
   grid-auto-rows: auto;
-  column-gap: var(--lq-gap-x);
-  row-gap: var(--lq-gap-y);
-  transform: translate3d(var(--lq-x), var(--lq-y), 0);
+  column-gap: var(--ws-gap-x);
+  row-gap: var(--ws-gap-y);
+  transform: translate3d(var(--ws-x), var(--ws-y), 0);
   pointer-events: none;
   transition: filter 0.22s ease-out;
 }
 
-.lq-card {
+.ws-card {
   display: block;
-  width: var(--lq-card-width);
+  width: var(--ws-card-width);
   margin: 0;
   padding: 0;
   border: 0;
@@ -762,17 +762,17 @@ body {
   background: transparent;
   appearance: none;
   opacity: 0;
-  transform: translate3d(calc(-1 * var(--lq-entry)), 0, 0);
+  transform: translate3d(calc(-1 * var(--ws-entry)), 0, 0);
   transition:
-    opacity var(--lq-duration) ease-out,
-    transform var(--lq-duration) cubic-bezier(0.18, 0.78, 0.24, 1),
+    opacity var(--ws-duration) ease-out,
+    transform var(--ws-duration) cubic-bezier(0.18, 0.78, 0.24, 1),
     filter 0.18s linear;
   cursor: pointer;
   pointer-events: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-.lq-card img {
+.ws-card img {
   display: block;
   width: 100%;
   height: auto;
@@ -781,30 +781,30 @@ body {
   -webkit-user-drag: none;
 }
 
-.scene.show-lq .lq-panel {
+.scene.show-ws .ws-panel {
   pointer-events: auto;
 }
 
-.scene.show-lq .lq-card {
+.scene.show-ws .ws-card {
   opacity: 1;
   transform: translate3d(0, 0, 0);
   pointer-events: auto;
 }
 
-.scene.show-lq .lq-card:nth-child(1) { transition-delay: 0s; }
-.scene.show-lq .lq-card:nth-child(2) { transition-delay: 0.05s; }
-.scene.show-lq .lq-card:nth-child(3) { transition-delay: 0.10s; }
-.scene.show-lq .lq-card:nth-child(4) { transition-delay: 0.15s; }
-.scene.show-lq .lq-card:nth-child(5) { transition-delay: 0.20s; }
-.scene.show-lq .lq-card:nth-child(6) { transition-delay: 0.25s; }
-.scene.show-lq .lq-card:nth-child(7) { transition-delay: 0.30s; }
-.scene.show-lq .lq-card:nth-child(8) { transition-delay: 0.35s; }
-.scene.show-lq .lq-card:nth-child(9) { transition-delay: 0.40s; }
-.scene.show-lq .lq-card:nth-child(10) { transition-delay: 0.45s; }
-.scene.show-lq .lq-card:nth-child(11) { transition-delay: 0.50s; }
-.scene.show-lq .lq-card:nth-child(12) { transition-delay: 0.55s; }
+.scene.show-ws .ws-card:nth-child(1) { transition-delay: 0s; }
+.scene.show-ws .ws-card:nth-child(2) { transition-delay: 0.05s; }
+.scene.show-ws .ws-card:nth-child(3) { transition-delay: 0.10s; }
+.scene.show-ws .ws-card:nth-child(4) { transition-delay: 0.15s; }
+.scene.show-ws .ws-card:nth-child(5) { transition-delay: 0.20s; }
+.scene.show-ws .ws-card:nth-child(6) { transition-delay: 0.25s; }
+.scene.show-ws .ws-card:nth-child(7) { transition-delay: 0.30s; }
+.scene.show-ws .ws-card:nth-child(8) { transition-delay: 0.35s; }
+.scene.show-ws .ws-card:nth-child(9) { transition-delay: 0.40s; }
+.scene.show-ws .ws-card:nth-child(10) { transition-delay: 0.45s; }
+.scene.show-ws .ws-card:nth-child(11) { transition-delay: 0.50s; }
+.scene.show-ws .ws-card:nth-child(12) { transition-delay: 0.55s; }
 
-.lq-card.is-selected {
+.ws-card.is-selected {
   filter: brightness(1.14) drop-shadow(0 0 8px rgb(255 255 255 / 50%));
 }
 
@@ -822,7 +822,7 @@ body {
   transition: opacity 0.2s linear;
 }
 
-.scene.show-lq .aux-dock {
+.scene.show-ws .aux-dock {
   opacity: 1;
   pointer-events: auto;
 }
@@ -939,12 +939,12 @@ body {
   transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj-x)), calc(-50% + var(--lzj-container-y) + var(--lzj-y) + var(--lzj-drop-y)), 0);
 }
 
-.scene.is-aux-open .lq-panel {
-  filter: blur(var(--aux-lq-blur));
+.scene.is-aux-open .ws-panel {
+  filter: blur(var(--aux-ws-blur));
   pointer-events: none;
 }
 
-.scene.is-aux-open .lq-card {
+.scene.is-aux-open .ws-card {
   pointer-events: none;
 }
 

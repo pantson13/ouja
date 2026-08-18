@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Ryuki v117: main(47) cardTrigger self-capture drag + guarded state machine + atomic PWA -->
+<!-- Ryuki v118: main(47) cardTrigger self-capture drag + guarded state machine + atomic PWA -->
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
@@ -12,30 +12,30 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="description" content="Ryuki 腰带变身动画演示" />
     <title>Ryuki</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=117" />
+    <link rel="manifest" href="./manifest.webmanifest?v=118" />
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png?v=50" />
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png?v=50" />
-    <link rel="preload" href="./assets/audio/ydmusic.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/mocha.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/chouka.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/chaka.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/huagai1.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/huagai2.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/j.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/q.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/d.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/l.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/f.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/hc.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/jianjianglin.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/longjiao.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/bsj.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/guo.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/boxing.mp3?av=117" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/jianji.mp3?av=117" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/ydmusic.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/mocha.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/chouka.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/chaka.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/huagai1.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/huagai2.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/j.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/q.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/d.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/l.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/f.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/hc.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/jianjianglin.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/longjiao.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/bsj.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/guo.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/boxing.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/jianji.mp3?av=118" as="audio" type="audio/mpeg" />
     <link rel="preload" href="./assets/images/bg4.png" as="image" type="image/png" />
     <link rel="preload" href="./assets/images/bg5.png" as="image" type="image/png" />
-    <link rel="stylesheet" href="./style.css?v=117" />
+    <link rel="stylesheet" href="./style.css?v=118" />
   </head>
   <body>
     <svg class="effect-definitions" aria-hidden="true" width="0" height="0">
@@ -119,19 +119,19 @@
 
       <canvas class="shatter-canvas" id="shatterCanvas" aria-hidden="true"></canvas>
 
-      <div class="lq-panel" id="lqPanel" aria-label="SW 卡片选择">
-        <button class="lq-card" id="sw1" type="button" data-lq="1" aria-label="选择 SW1"><img src="./assets/images/sw1.png" alt="" /></button>
-        <button class="lq-card" id="sw2" type="button" data-lq="2" aria-label="选择 SW2"><img src="./assets/images/sw2.png" alt="" /></button>
-        <button class="lq-card" id="sw3" type="button" data-lq="3" aria-label="选择 SW3"><img src="./assets/images/sw3.png" alt="" /></button>
-        <button class="lq-card" id="sw4" type="button" data-lq="4" aria-label="选择 SW4"><img src="./assets/images/sw4.png" alt="" /></button>
-        <button class="lq-card" id="sw5" type="button" data-lq="5" aria-label="选择 SW5"><img src="./assets/images/sw5.png" alt="" /></button>
-        <button class="lq-card" id="sw6" type="button" data-lq="6" aria-label="选择 SW6"><img src="./assets/images/sw6.png" alt="" /></button>
-        <button class="lq-card" id="sw7" type="button" data-lq="7" aria-label="选择 SW7"><img src="./assets/images/sw7.png" alt="" /></button>
-        <button class="lq-card" id="sw8" type="button" data-lq="8" aria-label="选择 SW8"><img src="./assets/images/sw8.png" alt="" /></button>
-        <button class="lq-card" id="sw9" type="button" data-lq="9" aria-label="选择 SW9"><img src="./assets/images/sw9.png" alt="" /></button>
-        <button class="lq-card" id="sw10" type="button" data-lq="10" aria-label="选择 SW10"><img src="./assets/images/sw10.png" alt="" /></button>
-        <button class="lq-card" id="sw11" type="button" data-lq="11" aria-label="选择 SW11"><img src="./assets/images/sw11.png" alt="" /></button>
-        <button class="lq-card" id="sw12" type="button" data-lq="12" aria-label="选择 SW12"><img src="./assets/images/sw12.png" alt="" /></button>
+      <div class="ws-panel" id="wsPanel" aria-label="WS 卡片选择">
+        <button class="ws-card" id="ws1" type="button" data-ws="1" aria-label="选择 WS1"><img src="./assets/images/ws1.png" alt="" /></button>
+        <button class="ws-card" id="ws2" type="button" data-ws="2" aria-label="选择 WS2"><img src="./assets/images/ws2.png" alt="" /></button>
+        <button class="ws-card" id="ws3" type="button" data-ws="3" aria-label="选择 WS3"><img src="./assets/images/ws3.png" alt="" /></button>
+        <button class="ws-card" id="ws4" type="button" data-ws="4" aria-label="选择 WS4"><img src="./assets/images/ws4.png" alt="" /></button>
+        <button class="ws-card" id="ws5" type="button" data-ws="5" aria-label="选择 WS5"><img src="./assets/images/ws5.png" alt="" /></button>
+        <button class="ws-card" id="ws6" type="button" data-ws="6" aria-label="选择 WS6"><img src="./assets/images/ws6.png" alt="" /></button>
+        <button class="ws-card" id="ws7" type="button" data-ws="7" aria-label="选择 WS7"><img src="./assets/images/ws7.png" alt="" /></button>
+        <button class="ws-card" id="ws8" type="button" data-ws="8" aria-label="选择 WS8"><img src="./assets/images/ws8.png" alt="" /></button>
+        <button class="ws-card" id="ws9" type="button" data-ws="9" aria-label="选择 WS9"><img src="./assets/images/ws9.png" alt="" /></button>
+        <button class="ws-card" id="ws10" type="button" data-ws="10" aria-label="选择 WS10"><img src="./assets/images/ws10.png" alt="" /></button>
+        <button class="ws-card" id="ws11" type="button" data-ws="11" aria-label="选择 WS11"><img src="./assets/images/ws11.png" alt="" /></button>
+        <button class="ws-card" id="ws12" type="button" data-ws="12" aria-label="选择 WS12"><img src="./assets/images/ws12.png" alt="" /></button>
       </div>
 
       <div class="side-controls" id="sideControls" aria-label="左下角快捷按钮">
@@ -176,6 +176,6 @@
 
     </main>
 
-    <script src="./script.js?v=117"></script>
+    <script src="./script.js?v=118"></script>
   </body>
 </html>
