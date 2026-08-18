@@ -89,7 +89,7 @@ const ANIMATION_CONFIG = {
     bs: { x: 560, y: 330, width: 150 },
 
     // 蛇杖整体容器：x / y 为整体基准位置；slideX 为从 BS 弹出的距离。
-    container: { x: 150, y: 200, slideX: -610, duration: 0.42 },
+    container: { x: 0, y: 600, slideX: -510, duration: 0.42 },
 
     // 蛇杖遮挡层 sz1。点击 sz1 后，最底层 sz2 弹出。
     sz1: { x: 5, y: -410, width: 630 },
