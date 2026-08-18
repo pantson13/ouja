@@ -104,7 +104,8 @@ const ANIMATION_CONFIG = {
     // 中间层：沿用当前红框卡槽有效区，位置和插卡规则不改。
     // 只允许卡片从红框上方往下跨过顶部边界进入；左右/下方都不能触发插入。
     cardSlot: {
-      showDebug: false,
+      // 调试：显示蛇杖红色插卡区域，位置/大小确认后可改回 false。
+      showDebug: true,
       x: -10,
       y: -380,
       width: 400,
@@ -178,31 +179,32 @@ const ANIMATION_CONFIG = {
 
 // 音效文件放在仓库 assets/audio/ 下；如文件格式不同，只改这里即可。
 const AUDIO_CONFIG = {
-  kh1: "./assets/audio/kh1.mp3?av=120",
-  ydmusic: "./assets/audio/ydmusic.mp3?av=120",
-  charu: "./assets/audio/charu.mp3?av=120",
-  mocha: "./assets/audio/mocha.mp3?av=120",
-  chouka: "./assets/audio/chouka.mp3?av=120",
-  chaka: "./assets/audio/chaka.mp3?av=120",
-  huagai1: "./assets/audio/huagai1.mp3?av=120",
-  huagai2: "./assets/audio/huagai2.mp3?av=120",
-  shejiao: "./assets/audio/shejiao.mp3?av=120",
-  guo: "./assets/audio/guo.mp3?av=120",
-  boxing: "./assets/audio/boxing.mp3?av=120",
-  jianji: "./assets/audio/jianji.mp3?av=120",
+  kh1: "./assets/audio/kh1.mp3?av=121",
+  ydmusic: "./assets/audio/ydmusic.mp3?av=121",
+  charu: "./assets/audio/charu.mp3?av=121",
+  mocha: "./assets/audio/mocha.mp3?av=121",
+  chouka: "./assets/audio/chouka.mp3?av=121",
+  chaka: "./assets/audio/chaka.mp3?av=121",
+  huagai1: "./assets/audio/huagai1.mp3?av=121",
+  huagai2: "./assets/audio/huagai2.mp3?av=121",
+  guo: "./assets/audio/guo.mp3?av=121",
+  boxing: "./assets/audio/boxing.mp3?av=121",
+  jianji: "./assets/audio/jianji.mp3?av=121",
   cardVoices: {
-    1: "./assets/audio/j.mp3?av=120",
-    2: "./assets/audio/s.mp3?av=120",
-    3: "./assets/audio/f.mp3?av=120",
-    4: "./assets/audio/l.mp3?av=120",
-    5: "./assets/audio/f.mp3?av=120",
-    6: "./assets/audio/hc.mp3?av=120",
+    1: "./assets/audio/j.mp3?av=121",
+    2: "./assets/audio/s.mp3?av=121",
+    3: "./assets/audio/f.mp3?av=121",
+    4: "./assets/audio/l.mp3?av=121",
+    5: "./assets/audio/f.mp3?av=121",
+    6: "./assets/audio/hc.mp3?av=121",
   },
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
-    1: "./assets/audio/jianjianglin.mp3?av=120",
-    4: "./assets/audio/longjiao.mp3?av=120",
-    5: "./assets/audio/bsj.mp3?av=120",
+    1: "./assets/audio/jianjianglin.mp3?av=121",
+    // WS3：必须等 f 基础音效 ended 后再接 shejiao，绝不重叠。
+    3: "./assets/audio/shejiao.mp3?av=121",
+    4: "./assets/audio/longjiao.mp3?av=121",
+    5: "./assets/audio/bsj.mp3?av=121",
   },
 };
 
@@ -523,7 +525,6 @@ const choukaAudio = new Audio(AUDIO_CONFIG.chouka);
 const chakaAudio = new Audio(AUDIO_CONFIG.chaka);
 const huagai1Audio = new Audio(AUDIO_CONFIG.huagai1);
 const huagai2Audio = new Audio(AUDIO_CONFIG.huagai2);
-const shejiaoAudio = new Audio(AUDIO_CONFIG.shejiao);
 const guoAudio = new Audio(AUDIO_CONFIG.guo);
 const boxingAudio = new Audio(AUDIO_CONFIG.boxing);
 const jianjiAudio = new Audio(AUDIO_CONFIG.jianji);
@@ -541,7 +542,6 @@ choukaAudio.preload = "auto";
 chakaAudio.preload = "auto";
 huagai1Audio.preload = "auto";
 huagai2Audio.preload = "auto";
-shejiaoAudio.preload = "auto";
 guoAudio.preload = "auto";
 boxingAudio.preload = "auto";
 jianjiAudio.preload = "auto";
@@ -549,7 +549,7 @@ Object.values(cardVoiceAudios).forEach((audio) => { audio.preload = "auto"; });
 Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "auto"; });
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
-  huagai1Audio, huagai2Audio, shejiaoAudio, guoAudio, ...Object.values(cardVoiceAudios),
+  huagai1Audio, huagai2Audio, guoAudio, ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
 ].forEach((audio) => audio.load());
 
@@ -1300,7 +1300,7 @@ async function playSelectedCardVoiceWithSyfg() {
       return;
     }
     cleanupCurrentRun();
-    // j→jianjianglin、l→longjiao、f→bsj；其余卡片没有追加音效。
+    // WS1：j→jianjianglin；WS3：f→shejiao；WS4：l→longjiao；WS5：f→bsj。追加音效只在基础音效 ended 后开始。
     if (followUpAudio) {
       playAudio(followUpAudio).catch((error) => {
         console.warn(`WS${cardId} 追加音效播放失败：`, error);
@@ -1526,14 +1526,6 @@ function handleSz2Click(event) {
     console.warn("蛇杖 sz2 / huagai2 音效播放失败：", error);
   });
 
-  // WS2 专属：蛇杖触发 huagai2 后立刻追加 shejiao。
-  // 与 WS2 自身的 s 卡片音效相互独立，保持原有读卡/蛇眼发光逻辑不变。
-  if (hadInsertedCard && String(selectedWs) === "2") {
-    stopAudio(shejiaoAudio);
-    playAudio(shejiaoAudio).catch((error) => {
-      console.warn("WS2 / shejiao 音效播放失败：", error);
-    });
-  }
 
   // 只有真正插入卡片后，点击 sz2 才显示 syfg。
   // syfg 的显示与 Ryuki 的 lyfg 规则一致：卡片基础音效开始时出现，音效 ended 时消失。
@@ -2161,7 +2153,6 @@ function resetToCard() {
   stopAudio(jianjiAudio);
   stopAudio(huagai1Audio);
   stopAudio(huagai2Audio);
-  stopAudio(shejiaoAudio);
   Object.values(cardVoiceAudios).forEach(stopAudio);
   Object.values(cardVoiceFollowUpAudios).forEach(stopAudio);
   resetAuxDevice();
