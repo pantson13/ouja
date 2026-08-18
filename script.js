@@ -203,8 +203,10 @@ const AUDIO_CONFIG = {
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
     1: "./assets/audio/jianjianglin.mp3?av=123",
-    // WS3：必须等 f 基础音效 ended 后再接 shejiao，绝不重叠。
-    3: "./assets/audio/shejiao.mp3?av=123",
+    // WS2：s 基础音效 ended 后接 shejiao，绝不重叠。
+    2: "./assets/audio/shejiao.mp3?av=123",
+    // WS3：f 基础音效 ended 后接 bsj，绝不重叠。
+    3: "./assets/audio/bsj.mp3?av=123",
     4: "./assets/audio/longjiao.mp3?av=123",
     5: "./assets/audio/bsj.mp3?av=123",
   },
