@@ -1,7 +1,7 @@
-// OUJA v122: atomic core update. Ryuki interaction base + 12 WS cards.
-const BUILD = "122";
+// OUJA v123: editable-code network-first + stable media cache. Ryuki interaction base + 12 WS cards.
+const BUILD = "123";
 const CACHE_PREFIX = "ryuki-pwa-";
-const CACHE_NAME = "ryuki-pwa-v122-stable";
+const CACHE_NAME = "ryuki-pwa-v123-stable";
 const INSTALL_CACHE_NAME = `${CACHE_NAME}-install`;
 const INDEX_FALLBACK = `./index.html?appv=${BUILD}`;
 
@@ -169,8 +169,28 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // 调参阶段的代码文件：Network First。
+  // 即使 ?v=BUILD 不变，只要 GitHub 上 script.js / style.css 被修改，联网打开时就读取最新版；
+  // 断网或网络失败才回退到当前缓存，避免每调一个坐标都必须升级 BUILD。
+  if (requestUrl.pathname.endsWith("/script.js") || requestUrl.pathname.endsWith("/style.css")) {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request, { cache: "no-store" });
+        if (!response.ok) throw new Error(`${requestUrl.pathname} -> HTTP ${response.status}`);
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(request, response.clone());
+        return response;
+      } catch (error) {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        throw error;
+      }
+    })());
+    return;
+  }
+
   // 带 ?av=BUILD 的音频属于不可变 build 资源：Cache First。
-  // 这样同一次 v117 绝不会一会播放安装时的 charu、一会又被网络上的另一份覆盖。
+  // 这样同一次 build 内不会一会播放安装时的音频、一会又被网络上的另一份覆盖。
   if (requestUrl.pathname.includes("/assets/audio/") && requestUrl.searchParams.get("av") === BUILD) {
     const cacheKey = canonicalRequest(request);
     event.respondWith((async () => {
