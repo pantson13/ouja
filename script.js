@@ -5,7 +5,7 @@
  * 目标画布：440 × 956 CSS px（竖屏）。
  * 坐标仍以 1179 × 2556 原始背景像素为单位，方便直接微调。
  */
-const PWA_BUILD = "119";
+const PWA_BUILD = "120";
 window.__RYUKI_BUILD__ = `v${PWA_BUILD}`;
 document.documentElement.dataset.ryukiBuild = `v${PWA_BUILD}`;
 // 每次真正启动 App 都使用不同会话标识。关键媒体在同一 build 下也不会复用上一次 PWA 进程里的媒体响应。
@@ -178,30 +178,31 @@ const ANIMATION_CONFIG = {
 
 // 音效文件放在仓库 assets/audio/ 下；如文件格式不同，只改这里即可。
 const AUDIO_CONFIG = {
-  kh1: "./assets/audio/kh1.mp3?av=119",
-  ydmusic: "./assets/audio/ydmusic.mp3?av=119",
-  charu: "./assets/audio/charu.mp3?av=119",
-  mocha: "./assets/audio/mocha.mp3?av=119",
-  chouka: "./assets/audio/chouka.mp3?av=119",
-  chaka: "./assets/audio/chaka.mp3?av=119",
-  huagai1: "./assets/audio/huagai1.mp3?av=119",
-  huagai2: "./assets/audio/huagai2.mp3?av=119",
-  guo: "./assets/audio/guo.mp3?av=119",
-  boxing: "./assets/audio/boxing.mp3?av=119",
-  jianji: "./assets/audio/jianji.mp3?av=119",
+  kh1: "./assets/audio/kh1.mp3?av=120",
+  ydmusic: "./assets/audio/ydmusic.mp3?av=120",
+  charu: "./assets/audio/charu.mp3?av=120",
+  mocha: "./assets/audio/mocha.mp3?av=120",
+  chouka: "./assets/audio/chouka.mp3?av=120",
+  chaka: "./assets/audio/chaka.mp3?av=120",
+  huagai1: "./assets/audio/huagai1.mp3?av=120",
+  huagai2: "./assets/audio/huagai2.mp3?av=120",
+  shejiao: "./assets/audio/shejiao.mp3?av=120",
+  guo: "./assets/audio/guo.mp3?av=120",
+  boxing: "./assets/audio/boxing.mp3?av=120",
+  jianji: "./assets/audio/jianji.mp3?av=120",
   cardVoices: {
-    1: "./assets/audio/j.mp3?av=119",
-    2: "./assets/audio/q.mp3?av=119",
-    3: "./assets/audio/d.mp3?av=119",
-    4: "./assets/audio/l.mp3?av=119",
-    5: "./assets/audio/f.mp3?av=119",
-    6: "./assets/audio/hc.mp3?av=119",
+    1: "./assets/audio/j.mp3?av=120",
+    2: "./assets/audio/s.mp3?av=120",
+    3: "./assets/audio/f.mp3?av=120",
+    4: "./assets/audio/l.mp3?av=120",
+    5: "./assets/audio/f.mp3?av=120",
+    6: "./assets/audio/hc.mp3?av=120",
   },
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
-    1: "./assets/audio/jianjianglin.mp3?av=119",
-    4: "./assets/audio/longjiao.mp3?av=119",
-    5: "./assets/audio/bsj.mp3?av=119",
+    1: "./assets/audio/jianjianglin.mp3?av=120",
+    4: "./assets/audio/longjiao.mp3?av=120",
+    5: "./assets/audio/bsj.mp3?av=120",
   },
 };
 
@@ -522,6 +523,7 @@ const choukaAudio = new Audio(AUDIO_CONFIG.chouka);
 const chakaAudio = new Audio(AUDIO_CONFIG.chaka);
 const huagai1Audio = new Audio(AUDIO_CONFIG.huagai1);
 const huagai2Audio = new Audio(AUDIO_CONFIG.huagai2);
+const shejiaoAudio = new Audio(AUDIO_CONFIG.shejiao);
 const guoAudio = new Audio(AUDIO_CONFIG.guo);
 const boxingAudio = new Audio(AUDIO_CONFIG.boxing);
 const jianjiAudio = new Audio(AUDIO_CONFIG.jianji);
@@ -539,6 +541,7 @@ choukaAudio.preload = "auto";
 chakaAudio.preload = "auto";
 huagai1Audio.preload = "auto";
 huagai2Audio.preload = "auto";
+shejiaoAudio.preload = "auto";
 guoAudio.preload = "auto";
 boxingAudio.preload = "auto";
 jianjiAudio.preload = "auto";
@@ -546,7 +549,7 @@ Object.values(cardVoiceAudios).forEach((audio) => { audio.preload = "auto"; });
 Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "auto"; });
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
-  huagai1Audio, huagai2Audio, guoAudio, ...Object.values(cardVoiceAudios),
+  huagai1Audio, huagai2Audio, shejiaoAudio, guoAudio, ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
 ].forEach((audio) => audio.load());
 
@@ -1523,6 +1526,15 @@ function handleSz2Click(event) {
     console.warn("蛇杖 sz2 / huagai2 音效播放失败：", error);
   });
 
+  // WS2 专属：蛇杖触发 huagai2 后立刻追加 shejiao。
+  // 与 WS2 自身的 s 卡片音效相互独立，保持原有读卡/蛇眼发光逻辑不变。
+  if (hadInsertedCard && String(selectedWs) === "2") {
+    stopAudio(shejiaoAudio);
+    playAudio(shejiaoAudio).catch((error) => {
+      console.warn("WS2 / shejiao 音效播放失败：", error);
+    });
+  }
+
   // 只有真正插入卡片后，点击 sz2 才显示 syfg。
   // syfg 的显示与 Ryuki 的 lyfg 规则一致：卡片基础音效开始时出现，音效 ended 时消失。
   if (hadInsertedCard && selectedWs) {
@@ -2149,6 +2161,7 @@ function resetToCard() {
   stopAudio(jianjiAudio);
   stopAudio(huagai1Audio);
   stopAudio(huagai2Audio);
+  stopAudio(shejiaoAudio);
   Object.values(cardVoiceAudios).forEach(stopAudio);
   Object.values(cardVoiceFollowUpAudios).forEach(stopAudio);
   resetAuxDevice();
