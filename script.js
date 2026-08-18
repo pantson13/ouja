@@ -5,7 +5,7 @@
  * 目标画布：440 × 956 CSS px（竖屏）。
  * 坐标仍以 1179 × 2556 原始背景像素为单位，方便直接微调。
  */
-const PWA_BUILD = "120";
+const PWA_BUILD = "122";
 window.__RYUKI_BUILD__ = `v${PWA_BUILD}`;
 document.documentElement.dataset.ryukiBuild = `v${PWA_BUILD}`;
 // 每次真正启动 App 都使用不同会话标识。关键媒体在同一 build 下也不会复用上一次 PWA 进程里的媒体响应。
@@ -179,32 +179,32 @@ const ANIMATION_CONFIG = {
 
 // 音效文件放在仓库 assets/audio/ 下；如文件格式不同，只改这里即可。
 const AUDIO_CONFIG = {
-  kh1: "./assets/audio/kh1.mp3?av=121",
-  ydmusic: "./assets/audio/ydmusic.mp3?av=121",
-  charu: "./assets/audio/charu.mp3?av=121",
-  mocha: "./assets/audio/mocha.mp3?av=121",
-  chouka: "./assets/audio/chouka.mp3?av=121",
-  chaka: "./assets/audio/chaka.mp3?av=121",
-  huagai1: "./assets/audio/huagai1.mp3?av=121",
-  huagai2: "./assets/audio/huagai2.mp3?av=121",
-  guo: "./assets/audio/guo.mp3?av=121",
-  boxing: "./assets/audio/boxing.mp3?av=121",
-  jianji: "./assets/audio/jianji.mp3?av=121",
+  kh1: "./assets/audio/kh1.mp3?av=122",
+  ydmusic: "./assets/audio/ydmusic.mp3?av=122",
+  charu: "./assets/audio/charu.mp3?av=122",
+  mocha: "./assets/audio/mocha.mp3?av=122",
+  chouka: "./assets/audio/chouka.mp3?av=122",
+  chaka: "./assets/audio/chaka.mp3?av=122",
+  huagai1: "./assets/audio/huagai1.mp3?av=122",
+  huagai2: "./assets/audio/huagai2.mp3?av=122",
+  guo: "./assets/audio/guo.mp3?av=122",
+  boxing: "./assets/audio/boxing.mp3?av=122",
+  jianji: "./assets/audio/jianji.mp3?av=122",
   cardVoices: {
-    1: "./assets/audio/j.mp3?av=121",
-    2: "./assets/audio/s.mp3?av=121",
-    3: "./assets/audio/f.mp3?av=121",
-    4: "./assets/audio/l.mp3?av=121",
-    5: "./assets/audio/f.mp3?av=121",
-    6: "./assets/audio/hc.mp3?av=121",
+    1: "./assets/audio/j.mp3?av=122",
+    2: "./assets/audio/s.mp3?av=122",
+    3: "./assets/audio/f.mp3?av=122",
+    4: "./assets/audio/l.mp3?av=122",
+    5: "./assets/audio/f.mp3?av=122",
+    6: "./assets/audio/hc.mp3?av=122",
   },
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
-    1: "./assets/audio/jianjianglin.mp3?av=121",
+    1: "./assets/audio/jianjianglin.mp3?av=122",
     // WS3：必须等 f 基础音效 ended 后再接 shejiao，绝不重叠。
-    3: "./assets/audio/shejiao.mp3?av=121",
-    4: "./assets/audio/longjiao.mp3?av=121",
-    5: "./assets/audio/bsj.mp3?av=121",
+    3: "./assets/audio/shejiao.mp3?av=122",
+    4: "./assets/audio/longjiao.mp3?av=122",
+    5: "./assets/audio/bsj.mp3?av=122",
   },
 };
 
