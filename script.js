@@ -195,6 +195,7 @@ const AUDIO_CONFIG = {
   boxing: "./assets/audio/boxing.mp3?av=123",
   jianji: "./assets/audio/jianji.mp3?av=123",
   chaoxiao: "./assets/audio/chaoxiao.mp3?av=123",
+  jiechu: "./assets/audio/jiechu.mp3?av=123",
   cardVoices: {
     1: "./assets/audio/j.mp3?av=123",
     2: "./assets/audio/s.mp3?av=123",
@@ -551,6 +552,7 @@ const guoAudio = new Audio(AUDIO_CONFIG.guo);
 const boxingAudio = new Audio(AUDIO_CONFIG.boxing);
 const jianjiAudio = new Audio(AUDIO_CONFIG.jianji);
 const chaoxiaoAudio = new Audio(AUDIO_CONFIG.chaoxiao);
+const jiechuAudio = new Audio(AUDIO_CONFIG.jiechu);
 const cardVoiceAudios = Object.fromEntries(
   Object.entries(AUDIO_CONFIG.cardVoices).map(([key, src]) => [key, new Audio(src)]),
 );
@@ -569,11 +571,12 @@ guoAudio.preload = "auto";
 boxingAudio.preload = "auto";
 jianjiAudio.preload = "auto";
 chaoxiaoAudio.preload = "auto";
+jiechuAudio.preload = "auto";
 Object.values(cardVoiceAudios).forEach((audio) => { audio.preload = "auto"; });
 Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "auto"; });
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
-  huagai1Audio, huagai2Audio, guoAudio, boxingAudio, jianjiAudio, chaoxiaoAudio,
+  huagai1Audio, huagai2Audio, guoAudio, boxingAudio, jianjiAudio, chaoxiaoAudio, jiechuAudio,
   ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
 ].forEach((audio) => audio.load());
@@ -2283,6 +2286,7 @@ function resetToCard() {
   stopAudio(boxingAudio);
   stopAudio(jianjiAudio);
   stopAudio(chaoxiaoAudio);
+  stopAudio(jiechuAudio);
   stopAudio(huagai1Audio);
   stopAudio(huagai2Audio);
   Object.values(cardVoiceAudios).forEach(stopAudio);
@@ -2823,6 +2827,12 @@ function completeCardExtraction(pointerId) {
   activePointerId = null;
   parallelReached = false;
   hideWsPanel();
+
+  // 卡盒真正成功拖出腰带时播放解除音效。
+  // 只有完整达到抽出阈值进入 completeCardExtraction() 才触发，拖一半松手不会响。
+  playAudio(jiechuAudio).catch((error) => {
+    console.warn("jiechu 音效播放失败：", error);
+  });
 
   // 卡盒真正离开腰带后，彻底作废这一轮仍未结束的 bg4/bg5 回调。
   // 先固定到 bg3 再做碎裂，避免旧 animationend/timeout 在下一轮流程里重新塞回背景。
