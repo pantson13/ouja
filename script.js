@@ -109,7 +109,7 @@ const ANIMATION_CONFIG = {
       // 调试：显示蛇杖红色插卡区域，位置/大小确认后可改回 false。
       showDebug: true,
       x: 0,
-      y: -800,
+      y: -700,
       width: 290,
       height: 380,
       // 插入后卡片在槽内的大小与位置。超出 cardSlot 的部分会被裁切，不会穿帮。
