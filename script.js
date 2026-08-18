@@ -95,7 +95,7 @@ const ANIMATION_CONFIG = {
     sz1: { x: 5, y: -410, width: 630 },
 
     // 蛇杖最底层 sz2。popY 控制点击 sz1 后的弹出距离；负数向上、正数向下。
-    sz2: { x: 0, y: -520, width: 370, popY: -300 },
+    sz2: { x: 0, y: -580, width: 370, popY: -400 },
 
     // 最上层蛇眼发光 syfg。默认隐藏，只在插卡后点击 sz2 并播放卡片音效时显示。
     // showForTuning=true 可常亮显示，方便单独调位置和大小。
