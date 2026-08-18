@@ -1,0 +1,1375 @@
+/* Ryuki v116: main(47) cardTrigger self-capture drag + stable PWA */
+
+:root {
+  color-scheme: dark;
+  background: #080808;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #080808;
+  display: grid;
+  place-items: center;
+  font-family: system-ui, sans-serif;
+}
+
+.effect-definitions {
+  position: fixed;
+  pointer-events: none;
+}
+
+.scene {
+  /* PWA / iPhone Safari：整个应用是全屏交互，不允许系统滚动/缩放手势抢走拖卡 pointer。 */
+  touch-action: none;
+  overscroll-behavior: none;
+  --belt-width: 1115px;
+  --final-x: 0px;
+  --final-y: -950px;
+  --bg3-x: 0px;
+  --bg3-y: -320px;
+  --bg3-width: 99%;
+  --bg3-height-scale: 1;
+  --bg3-duration: 1.5s;
+  --bg4-spread: 360px;
+  --bg4-entry: 520px;
+  --bg4-front-depth: 650px;
+  --bg4-duration: 1.2s;
+  --bg5-duration: 0.5s;
+  --shatter-duration: 0.72s;
+  --lq-x: -500px;
+  --lq-y: 420px;
+  --lq-card-width: 180px;
+  --lq-gap-x: 25px;
+  --lq-gap-y: 25px;
+  --lq-entry: 420px;
+  --lq-duration: 0.45s;
+  --bs-x: 520px;
+  --bs-y: 330px;
+  --bs-width: 150px;
+  --lzj-slide-x: -310px;
+  --lzj-offset-y: 0px;
+  --lzj-width: 330px;
+  --lzj-duration: 0.42s;
+  --lzj3-x: 0px;
+  --lzj3-y: 0px;
+  --lzj3-width: 330px;
+  --lyfg-x: 210px;
+  --lyfg-y: 0px;
+  --lyfg-width: 360px;
+  --lyfg-duration: 1s;
+  --lzj-container-x: 0px;
+  --lzj-container-y: 0px;
+  --card-slot-x: -38px;
+  --card-slot-y: -26px;
+  --card-slot-width: 316px;
+  --card-slot-height: 163px;
+  --card-slot-card-x: 0px;
+  --card-slot-card-y: 18px;
+  --card-slot-card-width: 280px;
+  --aux-lq-blur: 7px;
+  --card-extract-x: 0px;
+  --card-extract-y: 0px;
+  --stage-two-wave-duration: 1s;
+  --stage-two-flip-duration: 0.42s;
+  --card-start-x: 0px;
+  --card-start-y: 500px;
+  --card-drag-x: 0px;
+  --card-drag-y: 500px;
+  --card-nested-start-x: 0px;
+  --card-nested-start-y: 1450px;
+  --card-handoff-x: 0px;
+  --card-handoff-y: 1450px;
+  --card-insert-x: 0px;
+  --card-insert-y: 0px;
+  --card-width: 485px;
+  --card-insert-duration: 1.25s;
+  --kpc-x: 0px;
+  --kpc-y: 0px;
+  --kpc-pull-x: 0px;
+  --aux-card-x: 0px;
+  --aux-card-y: 0px;
+  --kpc-width: 437px;
+  --khzd-x: 0px;
+  --khzd-y: 0px;
+  --khzd-width: 485px;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #080808;
+}
+
+/*
+ * 背景始终覆盖 Safari / PWA 的完整动态视口。
+ * 腰带和卡盒仍由 JavaScript 按 440 × 956 坐标等比缩放并居中。
+ */
+.scene-backgrounds,
+.scene-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.scene-backgrounds {
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scene-background {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.scene-background-final {
+  opacity: 0;
+  transition: opacity 0.55s linear;
+}
+
+.scene.show-final-background .scene-background-final {
+  opacity: 1;
+}
+
+.character-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--belt-width);
+  height: 0;
+  transform: translate(-50%, -50%) translate3d(var(--final-x), var(--final-y), 0);
+  pointer-events: none;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+}
+
+.character-stage-back {
+  z-index: 2;
+}
+
+.character-stage-front {
+  z-index: 4;
+}
+
+.character-merge,
+.character-flash,
+.character-reveal {
+  position: absolute;
+  top: var(--bg3-y);
+  left: calc(50% + var(--bg3-x));
+  width: var(--bg3-width);
+  transform: translateX(-50%) scaleY(var(--bg3-height-scale));
+  transform-origin: 50% 0;
+}
+
+.character-merge {
+  opacity: 0;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform, opacity;
+}
+
+.character-merge-image,
+.character-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.character-flash,
+.character-reveal {
+  opacity: 0;
+  will-change: opacity, filter;
+}
+
+.character-flash {
+  z-index: 3;
+  pointer-events: none;
+}
+
+.scene.show-bg5 .character-flash {
+  animation: bg5-white-flash var(--bg5-duration) linear both;
+}
+
+.character-merge-left {
+  z-index: 1;
+}
+
+.character-merge-center {
+  z-index: 2;
+}
+
+.character-merge-front {
+  z-index: 3;
+}
+
+.character-merge-right {
+  z-index: 1;
+}
+
+.scene.show-bg4 .character-merge-left {
+  animation: bg4-merge-left var(--bg4-duration) linear both;
+}
+
+.scene.show-bg4 .character-merge-center {
+  animation: bg4-merge-center var(--bg4-duration) linear both;
+}
+
+.scene.show-bg4 .character-merge-front {
+  animation: bg4-merge-front var(--bg4-duration) linear both;
+}
+
+.scene.show-bg4 .character-merge-right {
+  animation: bg4-merge-right var(--bg4-duration) linear both;
+}
+
+.scene.show-bg3 .character-reveal {
+  opacity: 1;
+}
+
+.scene.is-resetting .scene-background-final {
+  transition: none;
+}
+
+.scene.is-resetting .character-merge,
+.scene.is-resetting .character-flash,
+.scene.is-resetting .character-reveal {
+  animation: none;
+  opacity: 0;
+}
+
+.scene.is-resetting .card-unit {
+  transition: none;
+}
+
+.belt-position {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.belt {
+  --up-x: 0px;
+  --up-y: 0px;
+  --down-x: 0px;
+  --down-y: 0px;
+  --sequence-duration: 5s;
+  --move-x: 0px;
+  --move-y: -950px;
+  --move-duration: 1.2s;
+  position: relative;
+  display: block;
+  width: var(--belt-width);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  appearance: none;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.belt.is-ready {
+  opacity: 1;
+}
+
+.belt.is-shatter-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card-trigger.is-draggable {
+  z-index: 10;
+}
+
+.belt-effect,
+.belt-art {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.belt-effect {
+  transform: rotateY(-180deg);
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform;
+}
+
+.belt-art {
+  opacity: 1;
+  transform: translateZ(0);
+  will-change: opacity, filter;
+  overflow: visible;
+}
+
+.belt-effect::before,
+.belt-effect::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    98deg,
+    #24ff73 0%,
+    #00ffd5 23%,
+    #00cfff 46%,
+    #276dff 69%,
+    #53ffad 100%
+  );
+  -webkit-mask: url("./assets/images/ydbg.png") center / 100% 100% no-repeat;
+  mask: url("./assets/images/ydbg.png") center / 100% 100% no-repeat;
+}
+
+.belt-effect::before {
+  filter: url(#innerEnergyEdge) saturate(2.15) brightness(1.34) contrast(1.12);
+  mix-blend-mode: screen;
+}
+
+.belt-effect::after {
+  z-index: 3;
+  background:
+    repeating-radial-gradient(
+      ellipse at 0% 50%,
+      rgb(35 255 126 / 0%) 0 6%,
+      rgb(35 255 126 / 80%) 8%,
+      rgb(0 225 255 / 42%) 11%,
+      rgb(38 102 255 / 0%) 16%
+    ),
+    linear-gradient(98deg, #22ff71, #00ffcf 29%, #00bfff 53%, #2965ff 76%, #59ff9f);
+  background-size: 175% 165%, 165% 100%;
+  background-position: 120% 50%, 100% 50%;
+  filter: saturate(2) brightness(1.25) contrast(1.08);
+  mix-blend-mode: screen;
+}
+
+.belt img,
+.card-unit img {
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.belt-base {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+}
+
+.card-unit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: var(--card-width);
+  aspect-ratio: 485 / 353;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: 50% 50%;
+  transition:
+    opacity 0.32s linear,
+    transform var(--card-insert-duration) cubic-bezier(0.2, 0.72, 0.2, 1);
+  will-change: transform, opacity;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card-trigger {
+  z-index: 4;
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--card-start-x), var(--card-start-y), 0);
+}
+
+.card-box {
+  z-index: 2;
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--card-nested-start-x), var(--card-nested-start-y), 0);
+}
+
+.card-trigger.is-ready {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.card-trigger.is-waiting {
+  pointer-events: none;
+  opacity: 1;
+}
+
+.card-trigger.is-draggable {
+  pointer-events: auto;
+  opacity: 1;
+  cursor: grab;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--card-drag-x), var(--card-drag-y), 0);
+}
+
+.card-trigger.is-replay-waiting {
+  z-index: 10;
+  pointer-events: none;
+  opacity: 1;
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--card-drag-x), var(--card-drag-y), 0);
+}
+
+.card-trigger.is-dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+.card-trigger.is-hidden {
+  pointer-events: none;
+  opacity: 0;
+  transition: none;
+}
+
+.card-box.is-handoff {
+  pointer-events: none;
+  opacity: 1;
+  transition: none;
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--card-handoff-x), var(--card-handoff-y), 0);
+}
+
+.card-box.is-inserting,
+.card-box.is-inserted {
+  pointer-events: none;
+  opacity: 1;
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--card-insert-x), var(--card-insert-y), 0);
+}
+
+.card-layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+
+.card-bottom {
+  width: 100%;
+  z-index: 1;
+}
+
+.card-middle {
+  z-index: 2;
+  width: var(--kpc-width);
+  transform:
+    translate(-50%, -50%)
+    translate3d(calc(var(--kpc-x) + var(--kpc-pull-x)), var(--kpc-y), 0);
+  transition: opacity 0.16s linear;
+}
+
+.scene.is-aux-armed .card-box.is-inserted {
+  pointer-events: auto;
+}
+
+.scene.is-aux-armed .card-middle {
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card-box.is-kpc-aux-hidden .card-middle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card-box.is-kpc-ejected .card-middle {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.card-glow {
+  z-index: 5;
+  width: var(--khfg-width);
+  opacity: 0;
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--khfg-x), var(--khfg-y), 0);
+  mix-blend-mode: screen;
+  filter: saturate(1.3) brightness(1.08);
+}
+
+.card-cover {
+  z-index: 4;
+  width: var(--khzd-width);
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--khzd-x), var(--khzd-y), 0);
+}
+
+.card-box.is-card-powered .card-glow {
+  opacity: 1;
+}
+
+.belt-layer {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.belt-glow {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  left: 50%;
+  width: var(--ydfg-width);
+  height: auto;
+  opacity: 0;
+  transform:
+    translate(-50%, -50%)
+    translate3d(var(--ydfg-x), var(--ydfg-y), 0);
+  mix-blend-mode: screen;
+  filter: saturate(1.18) brightness(1.04);
+  pointer-events: none;
+}
+
+.belt.is-card-powered .belt-glow {
+  opacity: 1;
+}
+
+.belt-layer-up {
+  top: 0;
+  width: 48.879%;
+  transform: translateX(calc(-50% + var(--up-x))) translateY(var(--up-y));
+}
+
+.belt-layer-down {
+  bottom: 0;
+  width: 50.224%;
+  transform: translateX(calc(-50% + var(--down-x))) translateY(var(--down-y));
+}
+
+.belt.is-stage-two .belt-effect {
+  /* 前 1.5 秒必须锁死反面，不允许一进入第二阶段就开始翻。 */
+  transform: rotateY(-180deg);
+  transition: none;
+}
+
+.belt.is-stage-two.is-stage-two-front .belt-effect {
+  /* 第二阶段画面出现满 1.5 秒后只翻一次到正面，之后保持到音效结束。 */
+  transform: rotateY(0deg);
+  transition: transform var(--stage-two-flip-duration) cubic-bezier(0.42, 0, 0.22, 1);
+}
+
+.belt.is-moving {
+  animation: belt-move-up var(--move-duration) cubic-bezier(0.22, 0.72, 0.28, 1) both;
+}
+
+.belt.is-stage-two .belt-art {
+  animation: belt-materialize var(--stage-two-wave-duration) linear both;
+}
+
+.belt.is-stage-two .belt-effect::before {
+  animation: energy-aura var(--stage-two-wave-duration) ease-out both;
+}
+
+.belt.is-stage-two .belt-effect::after {
+  animation:
+    energy-surface var(--stage-two-wave-duration) ease-out both,
+    water-roll var(--stage-two-wave-duration) linear infinite;
+}
+
+@keyframes belt-move-up {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(var(--move-x), var(--move-y), 0);
+  }
+}
+
+@keyframes belt-materialize {
+  0% {
+    opacity: 0.55;
+    filter: url(#waterRipple) saturate(1.35) brightness(1.12);
+  }
+
+  82% {
+    opacity: 0.72;
+    filter: url(#waterRipple) saturate(1.08) brightness(1.03);
+  }
+
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@keyframes energy-aura {
+  0% {
+    opacity: 0.02;
+  }
+
+  75% {
+    opacity: 0.016;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes energy-surface {
+  0% {
+    opacity: 0.02;
+  }
+
+  75% {
+    opacity: 0.015;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes water-roll {
+  from {
+    background-position: 120% 50%, 100% 50%;
+  }
+
+  to {
+    background-position: -80% 50%, -80% 50%;
+  }
+}
+
+/* charu 完成后，腰带内卡盒可直接拖出。 */
+.card-box.is-extractable {
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  transform:
+    translate(-50%, -50%)
+    translate3d(
+      calc(var(--card-insert-x) + var(--card-extract-x)),
+      calc(var(--card-insert-y) + var(--card-extract-y)),
+      0
+    );
+  transition: transform 0.2s ease-out;
+}
+
+.card-box.is-extracting {
+  cursor: grabbing;
+  transition: none;
+}
+
+.card-box.is-detached {
+  pointer-events: none;
+  opacity: 0;
+  transition: none;
+}
+
+/* 卡盒向右抽出成功时：bg3 + 腰带镜面碎裂退场。
+ * PWA / iPhone 优先版：全部碎裂绘制交给一个 Canvas 2D 图层。
+ * 不再依赖 clip-path、3D transform、filter 的 WebKit 合成。
+ */
+.shatter-canvas {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.shatter-canvas.is-active {
+  opacity: 1;
+}
+
+/* 六张 lq：左下方两排，上 1/2/3，下 4/5/6。 */
+.lq-panel {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  grid-template-columns: repeat(3, var(--lq-card-width));
+  grid-auto-rows: auto;
+  column-gap: var(--lq-gap-x);
+  row-gap: var(--lq-gap-y);
+  transform: translate3d(var(--lq-x), var(--lq-y), 0);
+  pointer-events: none;
+  transition: filter 0.22s ease-out;
+}
+
+.lq-card {
+  display: block;
+  width: var(--lq-card-width);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  appearance: none;
+  opacity: 0;
+  transform: translate3d(calc(-1 * var(--lq-entry)), 0, 0);
+  transition:
+    opacity var(--lq-duration) ease-out,
+    transform var(--lq-duration) cubic-bezier(0.18, 0.78, 0.24, 1),
+    filter 0.18s linear;
+  cursor: pointer;
+  pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lq-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.scene.show-lq .lq-panel {
+  pointer-events: auto;
+}
+
+.scene.show-lq .lq-card {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  pointer-events: auto;
+}
+
+.scene.show-lq .lq-card:nth-child(1) { transition-delay: 0s; }
+.scene.show-lq .lq-card:nth-child(2) { transition-delay: 0.05s; }
+.scene.show-lq .lq-card:nth-child(3) { transition-delay: 0.10s; }
+.scene.show-lq .lq-card:nth-child(4) { transition-delay: 0.15s; }
+.scene.show-lq .lq-card:nth-child(5) { transition-delay: 0.20s; }
+.scene.show-lq .lq-card:nth-child(6) { transition-delay: 0.25s; }
+
+.lq-card.is-selected {
+  filter: brightness(1.14) drop-shadow(0 0 8px rgb(255 255 255 / 50%));
+}
+
+/* 右侧龙召机容器。四层从下到上：lzj3、lzj2、lzj、lyfg（默认隐藏）。 */
+.aux-dock {
+  position: absolute;
+  z-index: 9;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(var(--bs-x), var(--bs-y), 0);
+  transition: opacity 0.2s linear;
+}
+
+.scene.show-lq .aux-dock {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bs-button,
+.lzj-button {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bs-button {
+  z-index: 8;
+  top: 0;
+  left: 0;
+  width: var(--bs-width);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.bs-button img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.lzj-image,
+.lzj-cover,
+.lzj-button,
+.aux-lyfg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--lzj-duration) cubic-bezier(0.2, 0.72, 0.2, 1),
+    opacity 0.16s linear;
+}
+
+.lzj-button {
+  width: var(--lzj-width);
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-x)), calc(-50% + var(--lzj-container-y) + var(--lzj-y)), 0);
+}
+
+.lzj-image-default {
+  z-index: 4;
+  width: var(--lzj-width);
+  transform: translate3d(calc(-50% + var(--lzj-x)), calc(-50% + var(--lzj-y)), 0);
+}
+
+.lzj-image-active {
+  z-index: 3;
+  width: var(--lzj2-width);
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj2-x)), calc(-50% + var(--lzj-container-y) + var(--lzj2-y)), 0);
+}
+
+.lzj-cover {
+  z-index: 1;
+  width: var(--lzj3-width);
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj3-x)), calc(-50% + var(--lzj-container-y) + var(--lzj3-y)), 0);
+}
+
+.lzj-button {
+  z-index: 6;
+  aspect-ratio: 1 / 1;
+  cursor: pointer;
+}
+
+.aux-lyfg {
+  z-index: 5;
+  width: var(--lyfg-width);
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lyfg-x)), calc(-50% + var(--lzj-container-y) + var(--lyfg-y)), 0);
+}
+
+.scene.is-aux-open .lzj-image-default,
+.scene.is-aux-open .lzj-image-active,
+.scene.is-aux-open .lzj-cover,
+.scene.is-aux-open .lzj-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.scene.is-aux-open .lzj-image-default,
+.scene.is-aux-open .lzj-button {
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj-x)), calc(-50% + var(--lzj-container-y) + var(--lzj-y)), 0);
+}
+
+.scene.is-aux-open .lzj-image-active {
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj2-x)), calc(-50% + var(--lzj-container-y) + var(--lzj2-y)), 0);
+}
+
+.scene.is-aux-open .lzj-cover {
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj3-x)), calc(-50% + var(--lzj-container-y) + var(--lzj3-y)), 0);
+}
+
+.scene.is-aux-open .aux-lyfg {
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lyfg-x)), calc(-50% + var(--lzj-container-y) + var(--lyfg-y)), 0);
+}
+
+/* 第一次点击 lzj 后，仅第2层 lzj 下滑；第二次点击会清掉 armed/inserted，因此自动回原位。 */
+.scene.is-aux-armed .lzj-image-default,
+.scene.is-aux-card-inserted .lzj-image-default,
+.scene.is-aux-armed .lzj-button,
+.scene.is-aux-card-inserted .lzj-button {
+  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj-x)), calc(-50% + var(--lzj-container-y) + var(--lzj-y) + var(--lzj-drop-y)), 0);
+}
+
+.scene.is-aux-open .lq-panel {
+  filter: blur(var(--aux-lq-blur));
+  pointer-events: none;
+}
+
+.scene.is-aux-open .lq-card {
+  pointer-events: none;
+}
+
+
+/* 调试：直接显示真实的龙召机插卡命中/裁切区域。位置与 cardSlot 参数完全同步。 */
+.lzj-card-slot-debug {
+  position: absolute;
+  z-index: 7;
+  top: 0;
+  left: 0;
+  width: var(--card-slot-width);
+  height: var(--card-slot-height);
+  box-sizing: border-box;
+  border: 4px solid rgba(255, 56, 56, 0.98);
+  background: rgba(255, 50, 50, 0.12);
+  box-shadow: 0 0 10px rgba(255, 40, 40, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(
+    calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--card-slot-x)),
+    calc(-50% + var(--lzj-container-y) + var(--card-slot-y)),
+    0
+  );
+}
+
+.scene.is-aux-open.show-card-slot-debug .lzj-card-slot-debug {
+  opacity: 1;
+}
+
+/* 龙召机有效卡槽：位于 lzj3 与 lzj2 之间，超出红框区域的卡片会被裁切。 */
+.lzj-card-slot-mask {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: var(--card-slot-width);
+  height: var(--card-slot-height);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(
+    calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--card-slot-x)),
+    calc(-50% + var(--lzj-container-y) + var(--card-slot-y)),
+    0
+  );
+}
+
+.lzj-card-slot-mask.is-active {
+  opacity: 1;
+}
+
+.lzj-inserted-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  width: var(--card-slot-card-width);
+  height: auto;
+  transform: translate(-50%, -50%) translate3d(var(--card-slot-card-x), var(--card-slot-card-y), 0);
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* 碰到卡槽上沿线后，卡片从接触点自动吸入预设槽位。 */
+.lzj-inserted-card.is-auto-intake {
+  transition:
+    transform 0.22s cubic-bezier(0.22, 0.8, 0.25, 1),
+    width 0.22s cubic-bezier(0.22, 0.8, 0.25, 1);
+  will-change: transform, width;
+}
+
+
+/*
+ * iPhone / PWA 专用全屏拖卡层。
+ * 容器本身不抢页面事件；只有实际显示的卡片可以命中。
+ * 卡片从 100% 抽出到进入龙召机之前始终保持在同一个坐标系中。
+ */
+.card-drag-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 12;
+  pointer-events: none;
+  touch-action: none;
+  overflow: visible;
+}
+
+
+/* 正面卡片真实触碰区域调试框。位置/大小与 JS 实际命中矩形完全一致。 */
+.aux-card-hit-debug {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  border: 4px solid rgba(255, 45, 45, 0.98);
+  background: rgba(255, 45, 45, 0.16);
+  transform: translate3d(var(--aux-hit-x, 0px), var(--aux-hit-y, 0px), 0);
+}
+
+.aux-card-hit-debug.is-visible {
+  opacity: 1;
+}
+
+
+/*
+ * v98 / iPhone：自由卡出现后让固定全屏层接住下一次 touchstart。
+ * 真正是否点中卡片由 JS 的数学矩形判断，不依赖 WebKit 对 transform 子元素的即时 hit-test。
+ */
+@media (pointer: coarse) {
+  .card-drag-layer.is-active {
+    pointer-events: auto;
+  }
+
+  .card-drag-layer.is-active .aux-transfer-card {
+    pointer-events: none;
+  }
+}
+
+.aux-transfer-card {
+  position: absolute;
+  /* v98：固定挂在 cardDragLayer；自由拖动时永远位于完整龙召机(z=9)上方。 */
+  z-index: 1;
+  left: 0;
+  top: 0;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(var(--aux-card-x), var(--aux-card-y), 0);
+  transform-origin: 50% 50%;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+
+.aux-transfer-card-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  transform-origin: 50% 50%;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+
+.aux-transfer-card.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.aux-transfer-card.is-dragging {
+  cursor: grabbing;
+}
+
+.aux-transfer-card.is-inserted {
+  pointer-events: none;
+}
+
+.aux-transfer-card.is-consumed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scene.show-lyfg-tuning.is-aux-open .aux-lyfg {
+  opacity: 1;
+}
+
+/* lyfg 默认隐藏；只由卡片专属音效的真实播放状态控制。 */
+.aux-lyfg.is-active {
+  opacity: 1;
+}
+
+@keyframes bg5-white-flash {
+  0% {
+    opacity: 1;
+    filter:
+      drop-shadow(0 0 8px rgb(255 255 255 / 100%))
+      drop-shadow(0 0 24px rgb(255 255 255 / 95%))
+      drop-shadow(0 0 54px rgb(255 255 255 / 72%));
+  }
+
+  72% {
+    opacity: 1;
+    filter:
+      drop-shadow(0 0 14px rgb(255 255 255 / 100%))
+      drop-shadow(0 0 34px rgb(255 255 255 / 92%))
+      drop-shadow(0 0 72px rgb(255 255 255 / 64%));
+  }
+
+  100% {
+    opacity: 0;
+    filter:
+      drop-shadow(0 0 22px rgb(255 255 255 / 55%))
+      drop-shadow(0 0 58px rgb(255 255 255 / 28%));
+  }
+}
+
+@keyframes bg4-merge-left {
+  0% {
+    opacity: 1;
+    transform:
+      translateX(calc(-50% - var(--bg4-entry)))
+      rotateY(0deg)
+      scaleY(var(--bg3-height-scale));
+  }
+
+  70% {
+    opacity: 1;
+    transform:
+      translateX(calc(-50% - var(--bg4-spread)))
+      rotateY(-604.8deg)
+      scaleY(var(--bg3-height-scale));
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      rotateY(-864deg)
+      scaleY(var(--bg3-height-scale));
+  }
+}
+
+@keyframes bg4-merge-center {
+  0% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      translateY(calc(-1 * var(--bg4-entry)))
+      rotateY(0deg)
+      scaleY(var(--bg3-height-scale));
+  }
+
+  70% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      translateY(0)
+      rotateY(604.8deg)
+      scaleY(var(--bg3-height-scale));
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      translateY(0)
+      rotateY(864deg)
+      scaleY(var(--bg3-height-scale));
+  }
+}
+
+
+@keyframes bg4-merge-front {
+  0% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      translateZ(var(--bg4-front-depth))
+      rotateY(0deg)
+      scaleY(var(--bg3-height-scale));
+  }
+
+  70% {
+    opacity: 1;
+    transform:
+      translateX(-50%)
+      translateZ(0)
+      rotateY(-604.8deg)
+      scaleY(var(--bg3-height-scale));
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      translateZ(0)
+      rotateY(-864deg)
+      scaleY(var(--bg3-height-scale));
+  }
+}
+
+@keyframes bg4-merge-right {
+  0% {
+    opacity: 1;
+    transform:
+      translateX(calc(-50% + var(--bg4-entry)))
+      rotateY(0deg)
+      scaleY(var(--bg3-height-scale));
+  }
+
+  70% {
+    opacity: 1;
+    transform:
+      translateX(calc(-50% + var(--bg4-spread)))
+      rotateY(604.8deg)
+      scaleY(var(--bg3-height-scale));
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translateX(-50%)
+      rotateY(864deg)
+      scaleY(var(--bg3-height-scale));
+  }
+}
+
+/* v59 PWA 手动抽 KPC：装置开启后，上层透明 PNG 不再吞掉触摸。 */
+.scene.is-aux-armed .card-cover,
+.scene.is-aux-armed .card-glow {
+  pointer-events: none;
+}
+
+/* 龙召机第二层始终可点击：即使没有插卡，也允许 huagai1 / huagai2 上下开合。 */
+.scene.is-aux-open .lzj-button {
+  pointer-events: auto;
+}
+
+/* 卡片确认进入龙召机后，第二次点击必须可靠接收 pointer/click。 */
+.scene.is-aux-card-inserted .lzj-button,
+.lzj-button.is-result-ready {
+  pointer-events: auto !important;
+}
+
+
+/* v63：抽卡阶段不再复制 khzd 到外部高层级。
+ * KPC 在完全抽出前始终使用腰带内部原 card-middle，因此原 card-cover / belt layer 的遮挡关系不变。
+ * 该旧节点保留为兼容占位，但永远不显示。
+ */
+.aux-card-cover-mask {
+  display: none !important;
+}
+
+/* bg4 完成后出现的中间两颗圆形按钮。位置和大小由 script.js 的 centerButtons 参数控制。 */
+.center-actions {
+  position: absolute;
+  z-index: 13;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(var(--center-buttons-x), var(--center-buttons-y), 0);
+  transition: opacity 0.18s linear;
+}
+
+.scene.show-center-actions .center-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.center-action-button {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  border: 2px solid rgb(255 255 255 / 72%);
+  background: rgb(10 16 22 / 58%);
+  box-shadow:
+    inset 0 0 14px rgb(255 255 255 / 12%),
+    0 0 14px rgb(80 180 255 / 28%);
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+
+.center-action-button-1 {
+  left: var(--center-button-1-x);
+  top: var(--center-button-1-y);
+  width: var(--center-button-1-size);
+  height: var(--center-button-1-size);
+}
+
+.center-action-button-2 {
+  left: var(--center-button-2-x);
+  top: var(--center-button-2-y);
+  width: var(--center-button-2-size);
+  height: var(--center-button-2-size);
+}
+
+.center-action-button:active {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+/* 左下角常驻四颗圆形按钮。位置和大小由 script.js 的 sideButtons 参数控制。 */
+.side-controls {
+  position: absolute;
+  z-index: 14;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--side-button-gap);
+  transform: translate3d(var(--side-buttons-x), var(--side-buttons-y), 0);
+  pointer-events: auto;
+}
+
+.side-control-button {
+  width: var(--side-button-size);
+  height: var(--side-button-size);
+  flex: 0 0 var(--side-button-size);
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  border: 2px solid rgb(255 255 255 / 72%);
+  background: rgb(10 16 22 / 58%);
+  box-shadow:
+    inset 0 0 14px rgb(255 255 255 / 12%),
+    0 0 12px rgb(80 180 255 / 24%);
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+.side-control-button:active {
+  transform: scale(0.92);
+}
