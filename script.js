@@ -110,8 +110,8 @@ const ANIMATION_CONFIG = {
       showDebug: true,
       x: -10,
       y: -600,
-      width: 400,
-      height: 530,
+      width: 300,
+      height: 400,
       // 插入后卡片在槽内的大小与位置。超出 cardSlot 的部分会被裁切，不会穿帮。
       cardX: 0,
       cardY: 18,
