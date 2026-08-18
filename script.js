@@ -1,11 +1,11 @@
-/* OUJA v118: Ryuki interaction base + 12 WS cards */
+/* OUJA v119: Ryuki interaction base + 12 WS cards */
 
 /*
  * iPhone 16 Pro Max 参数区
  * 目标画布：440 × 956 CSS px（竖屏）。
  * 坐标仍以 1179 × 2556 原始背景像素为单位，方便直接微调。
  */
-const PWA_BUILD = "118";
+const PWA_BUILD = "119";
 window.__RYUKI_BUILD__ = `v${PWA_BUILD}`;
 document.documentElement.dataset.ryukiBuild = `v${PWA_BUILD}`;
 // 每次真正启动 App 都使用不同会话标识。关键媒体在同一 build 下也不会复用上一次 PWA 进程里的媒体响应。
@@ -85,26 +85,23 @@ const ANIMATION_CONFIG = {
     button2: { x: 90, y: 0, size: 110 },
   },
   auxDevice: {
-    // BS 按钮。x / y / width 可自行调整。
+    // BS 按钮保留 Ryuki 原流程；x / y / width 可自行调整。
     bs: { x: 560, y: 330, width: 150 },
 
-    // 龙召机整体容器：x / y 为整体基准位置；slideX 为从 BS 弹出的距离。
+    // 蛇杖整体容器：x / y 为整体基准位置；slideX 为从 BS 弹出的距离。
     container: { x: 0, y: 0, slideX: -610, duration: 0.42 },
 
-    // 第4层（最底层）lzj3：每层都可独立调 x / y / width。
-    lzj3: { x: 0, y: 0, width: 630 },
+    // 蛇杖遮挡层 sz1。点击 sz1 后，最底层 sz2 弹出。
+    sz1: { x: 5, y: -410, width: 630 },
 
-    // 第3层 lzj2：独立调位置与大小。
-    lzj2: { x: 0, y: -500, width: 370 },
+    // 蛇杖最底层 sz2。popY 控制点击 sz1 后的弹出距离；负数向上、正数向下。
+    sz2: { x: 0, y: -500, width: 370, popY: -210 },
 
-    // 第2层 lzj：独立调位置与大小；点击后额外向下移动 dropY。
-    lzj: { x: 5, y: -410, width: 630, dropY: 210 },
+    // 最上层蛇眼发光 syfg。默认隐藏，只在插卡后点击 sz2 并播放卡片音效时显示。
+    // showForTuning=true 可常亮显示，方便单独调位置和大小。
+    syfg: { x: 0, y: -460, width: 200, duration: 1, showForTuning: false },
 
-    // 第1层（最上层）lyfg：独立调位置与大小。
-    // showForTuning=true：当前先常亮显示，方便你调位置；之后改 false 即恢复隐藏逻辑。
-    lyfg: { x: 8, y: -160, width: 500, duration: 1, showForTuning: false },
-
-    // 红框卡槽有效区：相对龙召机容器中心。
+    // 中间层：沿用当前红框卡槽有效区，位置和插卡规则不改。
     // 只允许卡片从红框上方往下跨过顶部边界进入；左右/下方都不能触发插入。
     cardSlot: {
       showDebug: false,
@@ -144,7 +141,7 @@ const ANIMATION_CONFIG = {
       },
     },
 
-    // 龙召机弹出期间，下方 ws 区域虚化强度。
+    // 蛇杖弹出期间，下方 ws 区域虚化强度。
     wsBlur: 7,
   },
   beltLayers: {
@@ -181,30 +178,30 @@ const ANIMATION_CONFIG = {
 
 // 音效文件放在仓库 assets/audio/ 下；如文件格式不同，只改这里即可。
 const AUDIO_CONFIG = {
-  kh1: "./assets/audio/kh1.mp3?av=118",
-  ydmusic: "./assets/audio/ydmusic.mp3?av=118",
-  charu: "./assets/audio/charu.mp3?av=118",
-  mocha: "./assets/audio/mocha.mp3?av=118",
-  chouka: "./assets/audio/chouka.mp3?av=118",
-  chaka: "./assets/audio/chaka.mp3?av=118",
-  huagai1: "./assets/audio/huagai1.mp3?av=118",
-  huagai2: "./assets/audio/huagai2.mp3?av=118",
-  guo: "./assets/audio/guo.mp3?av=118",
-  boxing: "./assets/audio/boxing.mp3?av=118",
-  jianji: "./assets/audio/jianji.mp3?av=118",
+  kh1: "./assets/audio/kh1.mp3?av=119",
+  ydmusic: "./assets/audio/ydmusic.mp3?av=119",
+  charu: "./assets/audio/charu.mp3?av=119",
+  mocha: "./assets/audio/mocha.mp3?av=119",
+  chouka: "./assets/audio/chouka.mp3?av=119",
+  chaka: "./assets/audio/chaka.mp3?av=119",
+  huagai1: "./assets/audio/huagai1.mp3?av=119",
+  huagai2: "./assets/audio/huagai2.mp3?av=119",
+  guo: "./assets/audio/guo.mp3?av=119",
+  boxing: "./assets/audio/boxing.mp3?av=119",
+  jianji: "./assets/audio/jianji.mp3?av=119",
   cardVoices: {
-    1: "./assets/audio/j.mp3?av=118",
-    2: "./assets/audio/q.mp3?av=118",
-    3: "./assets/audio/d.mp3?av=118",
-    4: "./assets/audio/l.mp3?av=118",
-    5: "./assets/audio/f.mp3?av=118",
-    6: "./assets/audio/hc.mp3?av=118",
+    1: "./assets/audio/j.mp3?av=119",
+    2: "./assets/audio/q.mp3?av=119",
+    3: "./assets/audio/d.mp3?av=119",
+    4: "./assets/audio/l.mp3?av=119",
+    5: "./assets/audio/f.mp3?av=119",
+    6: "./assets/audio/hc.mp3?av=119",
   },
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
-    1: "./assets/audio/jianjianglin.mp3?av=118",
-    4: "./assets/audio/longjiao.mp3?av=118",
-    5: "./assets/audio/bsj.mp3?av=118",
+    1: "./assets/audio/jianjianglin.mp3?av=119",
+    4: "./assets/audio/longjiao.mp3?av=119",
+    5: "./assets/audio/bsj.mp3?av=119",
   },
 };
 
@@ -248,12 +245,12 @@ const wsButtons = [...document.querySelectorAll(".ws-card")];
 const kpcLayer = document.querySelector("#kpcLayer");
 const bsButton = document.querySelector("#bsButton");
 const auxDock = document.querySelector("#auxDock");
-const lzjButton = document.querySelector("#lzjButton");
-const lzjImage = document.querySelector("#lzjImage");
-const lzj2Image = document.querySelector("#lzj2Image");
-const lzj3Image = document.querySelector("#lzj3Image");
-const lzjCardSlotMask = document.querySelector("#lzjCardSlotMask");
-const lzjInsertedCard = document.querySelector("#lzjInsertedCard");
+const sz1Button = document.querySelector("#sz1Button");
+const sz2Button = document.querySelector("#sz2Button");
+const sz1Image = document.querySelector("#sz1Image");
+const sz2Image = document.querySelector("#sz2Image");
+const szCardSlotMask = document.querySelector("#szCardSlotMask");
+const szInsertedCard = document.querySelector("#szInsertedCard");
 const cardDragLayer = document.querySelector("#cardDragLayer");
 const auxCardHitDebug = document.querySelector("#auxCardHitDebug");
 const auxTransferCard = document.querySelector("#auxTransferCard");
@@ -262,7 +259,7 @@ const auxCardCoverMask = document.querySelector("#auxCardCoverMask");
 const cardCoverLayer = cardBox?.querySelector(".card-cover");
 const sideButtons = [...document.querySelectorAll(".side-control-button")];
 const centerActionButtons = [...document.querySelectorAll(".center-action-button")];
-const lyfgImage = document.querySelector("#lyfgImage");
+const syfgImage = document.querySelector("#syfgImage");
 const beltArt = document.querySelector("#beltArt");
 const characterReveal = document.querySelector(".character-reveal");
 const shatterCanvas = document.querySelector("#shatterCanvas");
@@ -372,10 +369,10 @@ let auxDragLayerViewportOrigin = { left: 0, top: 0 };
 let auxChoukaPlayed = false;
 let auxResultPlayed = false;
 let auxReturning = false;
-let lzjReturnFallbackTimer = 0;
-let lzjReturnTransitionHandler = null;
-let lzjReturnToken = 0;
-let lyfgTimer = 0;
+let sz2ReturnFallbackTimer = 0;
+let sz2ReturnTransitionHandler = null;
+let sz2ReturnToken = 0;
+let syfgTimer = 0;
 
 // mocha + charu 共用一个在第一阶段真实点击中解锁的 Web AudioContext。
 // 两个关键音效的字节都带 build + session 参数并以 no-store 获取；同一 App 会话只使用这份确定的字节。
@@ -606,28 +603,24 @@ function applyPhoneLayout() {
   scene.style.setProperty("--bs-x", `${auxDevice.bs.x * scale}px`);
   scene.style.setProperty("--bs-y", `${auxDevice.bs.y * scale}px`);
   scene.style.setProperty("--bs-width", `${auxDevice.bs.width * scale}px`);
-  scene.style.setProperty("--lzj-container-x", `${(auxDevice.container.x || 0) * scale}px`);
-  scene.style.setProperty("--lzj-container-y", `${(auxDevice.container.y || 0) * scale}px`);
-  scene.style.setProperty("--lzj-slide-x", `${auxDevice.container.slideX * scale}px`);
-  scene.style.setProperty("--lzj-duration", `${auxDevice.container.duration}s`);
+  scene.style.setProperty("--sz-container-x", `${(auxDevice.container.x || 0) * scale}px`);
+  scene.style.setProperty("--sz-container-y", `${(auxDevice.container.y || 0) * scale}px`);
+  scene.style.setProperty("--sz-slide-x", `${auxDevice.container.slideX * scale}px`);
+  scene.style.setProperty("--sz-duration", `${auxDevice.container.duration}s`);
 
-  scene.style.setProperty("--lzj3-x", `${auxDevice.lzj3.x * scale}px`);
-  scene.style.setProperty("--lzj3-y", `${auxDevice.lzj3.y * scale}px`);
-  scene.style.setProperty("--lzj3-width", `${auxDevice.lzj3.width * scale}px`);
+  scene.style.setProperty("--sz1-x", `${auxDevice.sz1.x * scale}px`);
+  scene.style.setProperty("--sz1-y", `${auxDevice.sz1.y * scale}px`);
+  scene.style.setProperty("--sz1-width", `${auxDevice.sz1.width * scale}px`);
 
-  scene.style.setProperty("--lzj2-x", `${auxDevice.lzj2.x * scale}px`);
-  scene.style.setProperty("--lzj2-y", `${auxDevice.lzj2.y * scale}px`);
-  scene.style.setProperty("--lzj2-width", `${auxDevice.lzj2.width * scale}px`);
+  scene.style.setProperty("--sz2-x", `${auxDevice.sz2.x * scale}px`);
+  scene.style.setProperty("--sz2-y", `${auxDevice.sz2.y * scale}px`);
+  scene.style.setProperty("--sz2-width", `${auxDevice.sz2.width * scale}px`);
+  scene.style.setProperty("--sz2-pop-y", `${(auxDevice.sz2.popY || 0) * scale}px`);
 
-  scene.style.setProperty("--lzj-x", `${auxDevice.lzj.x * scale}px`);
-  scene.style.setProperty("--lzj-y", `${auxDevice.lzj.y * scale}px`);
-  scene.style.setProperty("--lzj-width", `${auxDevice.lzj.width * scale}px`);
-  scene.style.setProperty("--lzj-drop-y", `${(auxDevice.lzj.dropY || 0) * scale}px`);
-
-  scene.style.setProperty("--lyfg-x", `${auxDevice.lyfg.x * scale}px`);
-  scene.style.setProperty("--lyfg-y", `${auxDevice.lyfg.y * scale}px`);
-  scene.style.setProperty("--lyfg-width", `${auxDevice.lyfg.width * scale}px`);
-  scene.style.setProperty("--lyfg-duration", `${auxDevice.lyfg.duration}s`);
+  scene.style.setProperty("--syfg-x", `${auxDevice.syfg.x * scale}px`);
+  scene.style.setProperty("--syfg-y", `${auxDevice.syfg.y * scale}px`);
+  scene.style.setProperty("--syfg-width", `${auxDevice.syfg.width * scale}px`);
+  scene.style.setProperty("--syfg-duration", `${auxDevice.syfg.duration}s`);
   scene.style.setProperty("--card-slot-x", `${auxDevice.cardSlot.x * scale}px`);
   scene.style.setProperty("--card-slot-y", `${auxDevice.cardSlot.y * scale}px`);
   scene.style.setProperty("--card-slot-width", `${auxDevice.cardSlot.width * scale}px`);
@@ -636,7 +629,7 @@ function applyPhoneLayout() {
   scene.style.setProperty("--card-slot-card-y", `${auxDevice.cardSlot.cardY * scale}px`);
   scene.style.setProperty("--card-slot-card-width", `${auxDevice.cardSlot.cardWidth * scale}px`);
   scene.classList.toggle("show-card-slot-debug", Boolean(auxDevice.cardSlot.showDebug));
-  scene.classList.toggle("show-lyfg-tuning", Boolean(auxDevice.lyfg.showForTuning));
+  scene.classList.toggle("show-syfg-tuning", Boolean(auxDevice.syfg.showForTuning));
   scene.style.setProperty("--aux-ws-blur", `${auxDevice.wsBlur}px`);
   scene.style.setProperty("--card-start-x", `${card.start.x * scale}px`);
   scene.style.setProperty("--card-start-y", `${card.start.y * scale}px`);
@@ -1272,7 +1265,7 @@ function selectWsCard(event) {
   cardBox.classList.remove("is-kpc-ejected");
 }
 
-async function playSelectedCardVoiceWithLyfg() {
+async function playSelectedCardVoiceWithSyfg() {
   const cardId = selectedWs ? String(selectedWs) : "";
   const audio = cardId ? cardVoiceAudios[cardId] || null : null;
   const followUpAudio = cardId ? cardVoiceFollowUpAudios[cardId] || null : null;
@@ -1282,9 +1275,9 @@ async function playSelectedCardVoiceWithLyfg() {
   Object.values(cardVoiceAudios).forEach(stopAudio);
   Object.values(cardVoiceFollowUpAudios).forEach(stopAudio);
 
-  clearTimeout(lyfgTimer);
-  lyfgTimer = 0;
-  lyfgImage?.classList.remove("is-active");
+  clearTimeout(syfgTimer);
+  syfgTimer = 0;
+  syfgImage?.classList.remove("is-active");
 
   if (!audio) return;
 
@@ -1295,7 +1288,7 @@ async function playSelectedCardVoiceWithLyfg() {
 
   const cleanupCurrentRun = () => {
     detachBaseListeners();
-    if (runToken === cardVoiceRunToken) lyfgImage?.classList.remove("is-active");
+    if (runToken === cardVoiceRunToken) syfgImage?.classList.remove("is-active");
   };
 
   const handleBaseVoiceEnded = () => {
@@ -1326,8 +1319,8 @@ async function playSelectedCardVoiceWithLyfg() {
   try {
     await playAudio(audio);
     if (runToken !== cardVoiceRunToken) return;
-    // 只有基础卡片音效真正开始播放后才显示 lyfg。
-    lyfgImage?.classList.add("is-active");
+    // 只有基础卡片音效真正开始播放后才显示 syfg。
+    syfgImage?.classList.add("is-active");
   } catch (error) {
     cleanupCurrentRun();
     console.warn(`WS${cardId} 对应卡片音效播放失败：`, error);
@@ -1379,9 +1372,9 @@ function stopAuxKpcDrag(pointerId = null) {
 }
 
 function resetAuxDevice(options = {}) {
-  cancelLzjReturnWait();
-  clearTimeout(lyfgTimer);
-  lyfgTimer = 0;
+  cancelSz2ReturnWait();
+  clearTimeout(syfgTimer);
+  syfgTimer = 0;
   stopAuxKpcDrag(auxKpcPointerId);
   auxOpen = false;
   auxArmed = false;
@@ -1409,10 +1402,10 @@ function resetAuxDevice(options = {}) {
   cardDragLayer?.classList.remove("is-active");
   auxCardHitDebug?.classList.remove("is-visible");
   hideInsertedCardInSlot();
-  lzjButton?.classList.remove("is-result-ready");
+  sz2Button?.classList.remove("is-result-ready");
   auxCardCoverMask?.classList.remove("is-visible");
   if (auxTransferCardImage) auxTransferCardImage.src = "./assets/images/kpc.png";
-  lyfgImage?.classList.remove("is-active");
+  syfgImage?.classList.remove("is-active");
   if (auxTransferCard) {
     auxTransferCard.style.removeProperty("--aux-card-x");
     auxTransferCard.style.removeProperty("--aux-card-y");
@@ -1457,34 +1450,86 @@ function toggleAuxDock(event) {
   auxDock?.classList.add("is-open");
 }
 
-function cancelLzjReturnWait() {
-  lzjReturnToken += 1;
+function cancelSz2ReturnWait() {
+  sz2ReturnToken += 1;
   auxReturning = false;
-  clearTimeout(lzjReturnFallbackTimer);
-  lzjReturnFallbackTimer = 0;
-  if (lzjReturnTransitionHandler && lzjImage) {
-    lzjImage.removeEventListener("transitionend", lzjReturnTransitionHandler);
-    lzjImage.removeEventListener("webkitTransitionEnd", lzjReturnTransitionHandler);
+  clearTimeout(sz2ReturnFallbackTimer);
+  sz2ReturnFallbackTimer = 0;
+  if (sz2ReturnTransitionHandler && sz2Image) {
+    sz2Image.removeEventListener("transitionend", sz2ReturnTransitionHandler);
+    sz2Image.removeEventListener("webkitTransitionEnd", sz2ReturnTransitionHandler);
   }
-  lzjReturnTransitionHandler = null;
+  sz2ReturnTransitionHandler = null;
 }
 
-function runLzjReturnedActions(hadInsertedCard, token) {
-  if (token !== lzjReturnToken || !auxReturning) return;
+function waitForSz2Return() {
+  cancelSz2ReturnWait();
+  auxReturning = true;
+  const token = sz2ReturnToken;
 
-  cancelLzjReturnWait();
+  const finish = () => {
+    if (token !== sz2ReturnToken || !auxReturning) return;
+    requestAnimationFrame(() => {
+      if (token !== sz2ReturnToken || !auxReturning) return;
+      cancelSz2ReturnWait();
+    });
+  };
 
-  // 新规则：第2层真正复位到原始位置后，才触发 huagai2。
+  sz2ReturnTransitionHandler = (event) => {
+    if (event.target !== sz2Image || event.propertyName !== "transform") return;
+    finish();
+  };
+
+  sz2Image?.addEventListener("transitionend", sz2ReturnTransitionHandler);
+  sz2Image?.addEventListener("webkitTransitionEnd", sz2ReturnTransitionHandler);
+
+  // iPhone / PWA 兜底：极少数 WebKit 情况下 transitionend 可能缺失。
+  const durationMs = Math.max(0, Number(ANIMATION_CONFIG.auxDevice.container.duration || 0.42) * 1000);
+  sz2ReturnFallbackTimer = window.setTimeout(finish, durationMs + 140);
+}
+
+function handleSz1Click(event) {
+  event?.preventDefault();
+  event?.stopPropagation();
+  if (!flowStarted || !auxOpen || auxReturning || auxArmed) return;
+  prepareChakaSfxFromGesture().catch(() => undefined);
+
+  // 蛇杖第一步：点击遮挡层 sz1，让最底层 sz2 弹出，并同步触发 huagai1。
+  auxArmed = true;
+  auxResultPlayed = false;
+  scene.classList.remove("is-aux-playing");
+  auxDock?.classList.remove("is-playing");
+  scene.classList.add("is-aux-armed");
+  auxDock?.classList.add("is-armed");
+  playAudio(huagai1Audio).catch((error) => {
+    console.warn("蛇杖 sz1 / huagai1 音效播放失败：", error);
+  });
+}
+
+function handleSz2Click(event) {
+  event?.preventDefault();
+  event?.stopPropagation();
+  if (!flowStarted || !auxOpen || !auxArmed || auxReturning) return;
+
+  const hadInsertedCard = auxCardInserted;
+  auxArmed = false;
+  auxCardInserted = false;
+  scene.classList.remove("is-aux-armed", "is-aux-card-inserted");
+  auxDock?.classList.remove("is-armed", "is-card-inserted");
+  sz2Button?.classList.remove("is-result-ready");
+
+  // 蛇杖第二步：点击 sz2 立即触发 huagai2；sz2 同时开始复位。
   playAudio(huagai2Audio).catch((error) => {
-    console.warn("huagai2 音效播放失败：", error);
+    console.warn("蛇杖 sz2 / huagai2 音效播放失败：", error);
   });
 
-  // 有卡时仍保持 huagai2 -> 读卡音效 的原顺序，只是整体延后到复位完成后。
+  // 只有真正插入卡片后，点击 sz2 才显示 syfg。
+  // syfg 的显示与 Ryuki 的 lyfg 规则一致：卡片基础音效开始时出现，音效 ended 时消失。
   if (hadInsertedCard && selectedWs) {
     auxResultPlayed = true;
     scene.classList.add("is-aux-playing");
     auxDock?.classList.add("is-playing");
-    playSelectedCardVoiceWithLyfg();
+    playSelectedCardVoiceWithSyfg();
     auxTransferCard?.classList.add("is-consumed");
     cardDragLayer?.classList.remove("is-active");
     auxTransferCard?.classList.remove("is-inserted");
@@ -1493,63 +1538,10 @@ function runLzjReturnedActions(hadInsertedCard, token) {
     auxResultPlayed = false;
     scene.classList.remove("is-aux-playing");
     auxDock?.classList.remove("is-playing");
-  }
-}
-
-function waitForLzjReturn(hadInsertedCard) {
-  cancelLzjReturnWait();
-  auxReturning = true;
-  const token = lzjReturnToken;
-
-  const finish = () => {
-    if (token !== lzjReturnToken || !auxReturning) return;
-    // transitionend 到达后再等一帧，确保 Safari 已提交最终 transform。
-    requestAnimationFrame(() => runLzjReturnedActions(hadInsertedCard, token));
-  };
-
-  lzjReturnTransitionHandler = (event) => {
-    if (event.target !== lzjImage || event.propertyName !== "transform") return;
-    finish();
-  };
-
-  lzjImage?.addEventListener("transitionend", lzjReturnTransitionHandler);
-  lzjImage?.addEventListener("webkitTransitionEnd", lzjReturnTransitionHandler);
-
-  // PWA 兜底：极少数 WebKit 情况下 transitionend 可能缺失。
-  // 时间仅作失事件兜底，正常路径始终以真实 transform transitionend 为准。
-  const durationMs = Math.max(0, Number(ANIMATION_CONFIG.auxDevice.container.duration || 0.42) * 1000);
-  lzjReturnFallbackTimer = window.setTimeout(finish, durationMs + 140);
-}
-
-function handleLzjClick(event) {
-  event?.preventDefault();
-  event?.stopPropagation();
-  if (!flowStarted || !auxOpen || auxReturning) return;
-  prepareChakaSfxFromGesture().catch(() => undefined);
-
-  // 龙召机允许空载开合：第一次下滑 huagai1；第二次先复位，复位完成才 huagai2。
-  if (!auxArmed) {
-    auxArmed = true;
-    auxResultPlayed = false;
-    scene.classList.remove("is-aux-playing");
-    auxDock?.classList.remove("is-playing");
-    scene.classList.add("is-aux-armed");
-    auxDock?.classList.add("is-armed");
-    playAudio(huagai1Audio).catch((error) => {
-      console.warn("huagai1 音效播放失败：", error);
-    });
-    return;
+    syfgImage?.classList.remove("is-active");
   }
 
-  const hadInsertedCard = auxCardInserted;
-  auxArmed = false;
-  auxCardInserted = false;
-  scene.classList.remove("is-aux-armed", "is-aux-card-inserted");
-  auxDock?.classList.remove("is-armed", "is-card-inserted");
-  lzjButton?.classList.remove("is-result-ready");
-
-  // 清掉 class 的这一刻开始回位。huagai2 不在这里播放，而是等 transform 真正复位完成。
-  waitForLzjReturn(hadInsertedCard);
+  waitForSz2Return();
 }
 
 function getSelectedWsImageSrc() {
@@ -1592,7 +1584,7 @@ function handoffAuxKpcToFloatingCard(event) {
   const selectedSrc = getSelectedWsImageSrc();
   if (auxTransferCardImage) auxTransferCardImage.src = selectedSrc || "./assets/images/kpc.png";
   auxTransferCard.classList.remove("is-consumed", "is-inserted");
-  lzjButton?.classList.remove("is-result-ready");
+  sz2Button?.classList.remove("is-result-ready");
 
   // 完全抽出这一帧直接变成所选卡片正面，不执行 rotateY / animation。
   // v98：正面外层容器必须使用“所选 WS 图片真实宽高比”。
@@ -1611,7 +1603,7 @@ function handoffAuxKpcToFloatingCard(event) {
   auxTransferCard.style.width = `${frontWidth}px`;
   auxTransferCard.style.height = `${frontHeight}px`;
   setAuxKpcPosition(centerX - frontWidth / 2, centerY - frontHeight / 2);
-  auxKpcFrontReady = true; // 正面已就绪，用于允许龙召机插卡。
+  auxKpcFrontReady = true; // 正面已就绪，用于允许蛇杖插卡。
   auxTransferCard.classList.add("is-visible", "is-fully-extracted", "is-dragging");
   // 自由卡出现后，iPhone 的全屏拖卡层接管后续 touchstart。
   cardDragLayer?.classList.add("is-active");
@@ -1847,7 +1839,7 @@ function isAuxKpcEnteringSlot(previousCardRect = null) {
 }
 
 function showInsertedCardInSlot() {
-  if (!lzjInsertedCard || !auxTransferCardImage) return;
+  if (!szInsertedCard || !auxTransferCardImage) return;
   const slotRect = getAuxCardSlotRect();
   const cardRect = getAuxFloatingCardRect();
   if (!slotRect) return;
@@ -1858,33 +1850,33 @@ function showInsertedCardInSlot() {
   const finalY = (slot.cardY || 0) * scale;
   const finalWidth = (slot.cardWidth || 280) * scale;
 
-  lzjInsertedCard.src = auxTransferCardImage.currentSrc || auxTransferCardImage.src;
+  szInsertedCard.src = auxTransferCardImage.currentSrc || auxTransferCardImage.src;
 
   // 第一步：在“刚碰到上沿线”的屏幕位置完成层级切换。
   const localX = cardRect.centerX - slotRect.centerX;
   const localY = cardRect.centerY - slotRect.centerY;
-  lzjInsertedCard.style.width = `${auxKpcSize.width}px`;
-  lzjInsertedCard.style.transform = `translate(-50%, -50%) translate3d(${localX}px, ${localY}px, 0)`;
-  lzjInsertedCard.classList.remove("is-auto-intake");
-  lzjCardSlotMask?.classList.add("is-active");
+  szInsertedCard.style.width = `${auxKpcSize.width}px`;
+  szInsertedCard.style.transform = `translate(-50%, -50%) translate3d(${localX}px, ${localY}px, 0)`;
+  szInsertedCard.classList.remove("is-auto-intake");
+  szCardSlotMask?.classList.add("is-active");
   auxTransferCard?.classList.add("is-consumed");
 
   // 强制记录起始姿态后，下一帧自动吸入最终卡槽位置。
-  void lzjInsertedCard.offsetWidth;
+  void szInsertedCard.offsetWidth;
   requestAnimationFrame(() => {
-    if (!auxCardInserted || !lzjInsertedCard) return;
-    lzjInsertedCard.classList.add("is-auto-intake");
-    lzjInsertedCard.style.width = `${finalWidth}px`;
-    lzjInsertedCard.style.transform = `translate(-50%, -50%) translate3d(${finalX}px, ${finalY}px, 0)`;
+    if (!auxCardInserted || !szInsertedCard) return;
+    szInsertedCard.classList.add("is-auto-intake");
+    szInsertedCard.style.width = `${finalWidth}px`;
+    szInsertedCard.style.transform = `translate(-50%, -50%) translate3d(${finalX}px, ${finalY}px, 0)`;
   });
 }
 function hideInsertedCardInSlot() {
-  lzjCardSlotMask?.classList.remove("is-active");
-  if (lzjInsertedCard) {
-    lzjInsertedCard.classList.remove("is-auto-intake");
-    lzjInsertedCard.src = "./assets/images/kpc.png";
-    lzjInsertedCard.style.removeProperty("width");
-    lzjInsertedCard.style.removeProperty("transform");
+  szCardSlotMask?.classList.remove("is-active");
+  if (szInsertedCard) {
+    szInsertedCard.classList.remove("is-auto-intake");
+    szInsertedCard.src = "./assets/images/kpc.png";
+    szInsertedCard.style.removeProperty("width");
+    szInsertedCard.style.removeProperty("transform");
   }
 }
 
@@ -1898,11 +1890,11 @@ function completeAuxCardInsertion(event) {
   cardDragLayer?.classList.remove("is-active");
   auxCardHitDebug?.classList.remove("is-visible");
   showInsertedCardInSlot();
-  lzjButton?.classList.add("is-result-ready");
+  sz2Button?.classList.add("is-result-ready");
   // 卡片下边缘碰到卡槽上沿线即视为插卡成功：立刻 chaka，并自动吸入槽内。
   // PWA 优先：pointermove 里不用 HTMLAudio 作为主通道，直接播放已在真实手势中解锁的 Web Audio Buffer。
   playChakaReliable().catch((error) => {
-    console.warn("龙召机插卡 chaka 音效播放失败：", error);
+    console.warn("蛇杖插卡 chaka 音效播放失败：", error);
   });
   return true;
 }
@@ -3005,7 +2997,8 @@ centerActionButtons[1]?.addEventListener("click", (event) => {
 });
 auxTransferCard?.addEventListener("contextmenu", (event) => event.preventDefault());
 bsButton?.addEventListener("click", toggleAuxDock);
-lzjButton?.addEventListener("click", handleLzjClick);
+sz1Button?.addEventListener("click", handleSz1Click);
+sz2Button?.addEventListener("click", handleSz2Click);
 bg4Center.addEventListener("animationend", finishBg4Merge);
 bg4Center.addEventListener("webkitAnimationEnd", finishBg4Merge);
 applyPhoneLayout();

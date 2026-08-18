@@ -1,7 +1,7 @@
-// OUJA v118: atomic core update. Ryuki interaction base + 12 WS cards.
-const BUILD = "118";
+// OUJA v119: atomic core update. Ryuki interaction base + 12 WS cards.
+const BUILD = "119";
 const CACHE_PREFIX = "ryuki-pwa-";
-const CACHE_NAME = "ryuki-pwa-v118-stable";
+const CACHE_NAME = "ryuki-pwa-v119-stable";
 const INSTALL_CACHE_NAME = `${CACHE_NAME}-install`;
 const INDEX_FALLBACK = `./index.html?appv=${BUILD}`;
 
@@ -48,10 +48,9 @@ const OPTIONAL_ASSETS = [
   "./assets/images/ws11.png",
   "./assets/images/ws12.png",
   "./assets/images/bs.png",
-  "./assets/images/lzj.png",
-  "./assets/images/lzj2.png",
-  "./assets/images/lzj3.png",
-  "./assets/images/lyfg.png",
+  "./assets/images/sz1.png",
+  "./assets/images/sz2.png",
+  "./assets/images/syfg.png",
   `./assets/audio/chouka.mp3?av=${BUILD}`,
   `./assets/audio/chaka.mp3?av=${BUILD}`,
   `./assets/audio/huagai1.mp3?av=${BUILD}`,

@@ -1,4 +1,4 @@
-/* OUJA v118: Ryuki interaction base + 12 WS cards */
+/* OUJA v119: Ryuki interaction base + 12 WS cards */
 
 :root {
   color-scheme: dark;
@@ -60,19 +60,21 @@ body {
   --bs-x: 520px;
   --bs-y: 330px;
   --bs-width: 150px;
-  --lzj-slide-x: -310px;
-  --lzj-offset-y: 0px;
-  --lzj-width: 330px;
-  --lzj-duration: 0.42s;
-  --lzj3-x: 0px;
-  --lzj3-y: 0px;
-  --lzj3-width: 330px;
-  --lyfg-x: 210px;
-  --lyfg-y: 0px;
-  --lyfg-width: 360px;
-  --lyfg-duration: 1s;
-  --lzj-container-x: 0px;
-  --lzj-container-y: 0px;
+  --sz-slide-x: -310px;
+  --sz-duration: 0.42s;
+  --sz1-x: 0px;
+  --sz1-y: -410px;
+  --sz1-width: 630px;
+  --sz2-x: 0px;
+  --sz2-y: -500px;
+  --sz2-width: 370px;
+  --sz2-pop-y: -210px;
+  --syfg-x: 0px;
+  --syfg-y: -460px;
+  --syfg-width: 200px;
+  --syfg-duration: 1s;
+  --sz-container-x: 0px;
+  --sz-container-y: 0px;
   --card-slot-x: -38px;
   --card-slot-y: -26px;
   --card-slot-width: 316px;
@@ -808,7 +810,7 @@ body {
   filter: brightness(1.14) drop-shadow(0 0 8px rgb(255 255 255 / 50%));
 }
 
-/* 右侧龙召机容器。四层从下到上：lzj3、lzj2、lzj、lyfg（默认隐藏）。 */
+/* 右侧蛇杖容器。四层从下到上：sz2、卡槽区域、sz1、syfg（默认隐藏）。 */
 .aux-dock {
   position: absolute;
   z-index: 9;
@@ -828,7 +830,8 @@ body {
 }
 
 .bs-button,
-.lzj-button {
+.sz1-button,
+.sz2-button {
   position: absolute;
   margin: 0;
   padding: 0;
@@ -857,86 +860,121 @@ body {
   -webkit-user-drag: none;
 }
 
-.lzj-image,
-.lzj-cover,
-.lzj-button,
-.aux-lyfg {
+.sz1-image,
+.sz2-image,
+.sz1-button,
+.sz2-button,
+.aux-syfg {
   position: absolute;
   top: 0;
   left: 0;
   opacity: 0;
   pointer-events: none;
   transition:
-    transform var(--lzj-duration) cubic-bezier(0.2, 0.72, 0.2, 1),
+    transform var(--sz-duration) cubic-bezier(0.2, 0.72, 0.2, 1),
     opacity 0.16s linear;
 }
 
-.lzj-button {
-  width: var(--lzj-width);
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-x)), calc(-50% + var(--lzj-container-y) + var(--lzj-y)), 0);
-}
-
-.lzj-image-default {
-  z-index: 4;
-  width: var(--lzj-width);
-  transform: translate3d(calc(-50% + var(--lzj-x)), calc(-50% + var(--lzj-y)), 0);
-}
-
-.lzj-image-active {
-  z-index: 3;
-  width: var(--lzj2-width);
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj2-x)), calc(-50% + var(--lzj-container-y) + var(--lzj2-y)), 0);
-}
-
-.lzj-cover {
+/* 最底层：sz2。 */
+.sz2-image {
   z-index: 1;
-  width: var(--lzj3-width);
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj3-x)), calc(-50% + var(--lzj-container-y) + var(--lzj3-y)), 0);
+  width: var(--sz2-width);
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--sz2-x)),
+    calc(-50% + var(--sz-container-y) + var(--sz2-y)),
+    0
+  );
 }
 
-.lzj-button {
+/* 遮挡层：sz1。卡片层位于 sz2 与 sz1 之间。 */
+.sz1-image {
+  z-index: 3;
+  width: var(--sz1-width);
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--sz1-x)),
+    calc(-50% + var(--sz-container-y) + var(--sz1-y)),
+    0
+  );
+}
+
+/* 最上层蛇眼发光。默认透明，仅卡片音效播放时点亮。 */
+.aux-syfg {
+  z-index: 4;
+  width: var(--syfg-width);
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--syfg-x)),
+    calc(-50% + var(--sz-container-y) + var(--syfg-y)),
+    0
+  );
+}
+
+.sz1-button {
   z-index: 6;
-  aspect-ratio: 1 / 1;
+  width: var(--sz1-width);
+  aspect-ratio: 706 / 1134;
   cursor: pointer;
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--sz1-x)),
+    calc(-50% + var(--sz-container-y) + var(--sz1-y)),
+    0
+  );
 }
 
-.aux-lyfg {
-  z-index: 5;
-  width: var(--lyfg-width);
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lyfg-x)), calc(-50% + var(--lzj-container-y) + var(--lyfg-y)), 0);
+.sz2-button {
+  z-index: 7;
+  width: var(--sz2-width);
+  aspect-ratio: 346 / 317;
+  cursor: pointer;
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--sz2-x)),
+    calc(-50% + var(--sz-container-y) + var(--sz2-y)),
+    0
+  );
 }
 
-.scene.is-aux-open .lzj-image-default,
-.scene.is-aux-open .lzj-image-active,
-.scene.is-aux-open .lzj-cover,
-.scene.is-aux-open .lzj-button {
+.scene.is-aux-open .sz1-image,
+.scene.is-aux-open .sz2-image,
+.scene.is-aux-open .sz1-button,
+.scene.is-aux-open .sz2-button {
   opacity: 1;
-  pointer-events: auto;
 }
 
-.scene.is-aux-open .lzj-image-default,
-.scene.is-aux-open .lzj-button {
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj-x)), calc(-50% + var(--lzj-container-y) + var(--lzj-y)), 0);
+.scene.is-aux-open .sz1-image,
+.scene.is-aux-open .sz1-button {
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--sz-slide-x) + var(--sz1-x)),
+    calc(-50% + var(--sz-container-y) + var(--sz1-y)),
+    0
+  );
 }
 
-.scene.is-aux-open .lzj-image-active {
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj2-x)), calc(-50% + var(--lzj-container-y) + var(--lzj2-y)), 0);
+.scene.is-aux-open .sz2-image,
+.scene.is-aux-open .sz2-button {
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--sz-slide-x) + var(--sz2-x)),
+    calc(-50% + var(--sz-container-y) + var(--sz2-y)),
+    0
+  );
 }
 
-.scene.is-aux-open .lzj-cover {
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj3-x)), calc(-50% + var(--lzj-container-y) + var(--lzj3-y)), 0);
+.scene.is-aux-open .aux-syfg {
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--sz-slide-x) + var(--syfg-x)),
+    calc(-50% + var(--sz-container-y) + var(--syfg-y)),
+    0
+  );
 }
 
-.scene.is-aux-open .aux-lyfg {
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lyfg-x)), calc(-50% + var(--lzj-container-y) + var(--lyfg-y)), 0);
-}
-
-/* 第一次点击 lzj 后，仅第2层 lzj 下滑；第二次点击会清掉 armed/inserted，因此自动回原位。 */
-.scene.is-aux-armed .lzj-image-default,
-.scene.is-aux-card-inserted .lzj-image-default,
-.scene.is-aux-armed .lzj-button,
-.scene.is-aux-card-inserted .lzj-button {
-  transform: translate3d(calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--lzj-x)), calc(-50% + var(--lzj-container-y) + var(--lzj-y) + var(--lzj-drop-y)), 0);
+/* 点击 sz1 后只有最底层 sz2 弹出；sz1 和卡槽位置保持不动。 */
+.scene.is-aux-armed .sz2-image,
+.scene.is-aux-card-inserted .sz2-image,
+.scene.is-aux-armed .sz2-button,
+.scene.is-aux-card-inserted .sz2-button {
+  transform: translate3d(
+    calc(-50% + var(--sz-container-x) + var(--sz-slide-x) + var(--sz2-x)),
+    calc(-50% + var(--sz-container-y) + var(--sz2-y) + var(--sz2-pop-y)),
+    0
+  );
 }
 
 .scene.is-aux-open .ws-panel {
@@ -949,8 +987,8 @@ body {
 }
 
 
-/* 调试：直接显示真实的龙召机插卡命中/裁切区域。位置与 cardSlot 参数完全同步。 */
-.lzj-card-slot-debug {
+/* 调试：直接显示真实的蛇杖插卡命中/裁切区域。位置与 cardSlot 参数完全同步。 */
+.sz-card-slot-debug {
   position: absolute;
   z-index: 7;
   top: 0;
@@ -964,18 +1002,18 @@ body {
   opacity: 0;
   pointer-events: none;
   transform: translate3d(
-    calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--card-slot-x)),
-    calc(-50% + var(--lzj-container-y) + var(--card-slot-y)),
+    calc(-50% + var(--sz-container-x) + var(--sz-slide-x) + var(--card-slot-x)),
+    calc(-50% + var(--sz-container-y) + var(--card-slot-y)),
     0
   );
 }
 
-.scene.is-aux-open.show-card-slot-debug .lzj-card-slot-debug {
+.scene.is-aux-open.show-card-slot-debug .sz-card-slot-debug {
   opacity: 1;
 }
 
-/* 龙召机有效卡槽：位于 lzj3 与 lzj2 之间，超出红框区域的卡片会被裁切。 */
-.lzj-card-slot-mask {
+/* 蛇杖有效卡槽：位于 sz2 与 sz1 之间，超出红框区域的卡片会被裁切。 */
+.sz-card-slot-mask {
   position: absolute;
   z-index: 2;
   top: 0;
@@ -986,17 +1024,17 @@ body {
   opacity: 0;
   pointer-events: none;
   transform: translate3d(
-    calc(-50% + var(--lzj-container-x) + var(--lzj-slide-x) + var(--card-slot-x)),
-    calc(-50% + var(--lzj-container-y) + var(--card-slot-y)),
+    calc(-50% + var(--sz-container-x) + var(--sz-slide-x) + var(--card-slot-x)),
+    calc(-50% + var(--sz-container-y) + var(--card-slot-y)),
     0
   );
 }
 
-.lzj-card-slot-mask.is-active {
+.sz-card-slot-mask.is-active {
   opacity: 1;
 }
 
-.lzj-inserted-card {
+.sz-inserted-card {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -1010,7 +1048,7 @@ body {
 }
 
 /* 碰到卡槽上沿线后，卡片从接触点自动吸入预设槽位。 */
-.lzj-inserted-card.is-auto-intake {
+.sz-inserted-card.is-auto-intake {
   transition:
     transform 0.22s cubic-bezier(0.22, 0.8, 0.25, 1),
     width 0.22s cubic-bezier(0.22, 0.8, 0.25, 1);
@@ -1021,7 +1059,7 @@ body {
 /*
  * iPhone / PWA 专用全屏拖卡层。
  * 容器本身不抢页面事件；只有实际显示的卡片可以命中。
- * 卡片从 100% 抽出到进入龙召机之前始终保持在同一个坐标系中。
+ * 卡片从 100% 抽出到进入蛇杖之前始终保持在同一个坐标系中。
  */
 .card-drag-layer {
   position: absolute;
@@ -1070,7 +1108,7 @@ body {
 
 .aux-transfer-card {
   position: absolute;
-  /* v98：固定挂在 cardDragLayer；自由拖动时永远位于完整龙召机(z=9)上方。 */
+  /* v98：固定挂在 cardDragLayer；自由拖动时永远位于完整蛇杖(z=9)上方。 */
   z-index: 1;
   left: 0;
   top: 0;
@@ -1118,12 +1156,12 @@ body {
   pointer-events: none;
 }
 
-.scene.show-lyfg-tuning.is-aux-open .aux-lyfg {
+.scene.show-syfg-tuning.is-aux-open .aux-syfg {
   opacity: 1;
 }
 
-/* lyfg 默认隐藏；只由卡片专属音效的真实播放状态控制。 */
-.aux-lyfg.is-active {
+/* syfg 默认隐藏；只由卡片专属音效的真实播放状态控制。 */
+.aux-syfg.is-active {
   opacity: 1;
 }
 
@@ -1269,14 +1307,19 @@ body {
   pointer-events: none;
 }
 
-/* 龙召机第二层始终可点击：即使没有插卡，也允许 huagai1 / huagai2 上下开合。 */
-.scene.is-aux-open .lzj-button {
+/* 蛇杖点击规则：打开后先只允许点击 sz1；sz2 弹出后改由 sz2 接管第二次点击。 */
+.scene.is-aux-open .sz1-button {
   pointer-events: auto;
 }
 
-/* 卡片确认进入龙召机后，第二次点击必须可靠接收 pointer/click。 */
-.scene.is-aux-card-inserted .lzj-button,
-.lzj-button.is-result-ready {
+.scene.is-aux-armed .sz1-button,
+.scene.is-aux-card-inserted .sz1-button {
+  pointer-events: none;
+}
+
+.scene.is-aux-armed .sz2-button,
+.scene.is-aux-card-inserted .sz2-button,
+.sz2-button.is-result-ready {
   pointer-events: auto !important;
 }
 

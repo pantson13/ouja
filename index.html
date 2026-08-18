@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Ryuki v118: main(47) cardTrigger self-capture drag + guarded state machine + atomic PWA -->
+<!-- Ryuki v119: main(47) cardTrigger self-capture drag + guarded state machine + atomic PWA -->
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
@@ -12,30 +12,30 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="description" content="Ryuki 腰带变身动画演示" />
     <title>Ryuki</title>
-    <link rel="manifest" href="./manifest.webmanifest?v=118" />
+    <link rel="manifest" href="./manifest.webmanifest?v=119" />
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png?v=50" />
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png?v=50" />
-    <link rel="preload" href="./assets/audio/ydmusic.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/mocha.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/chouka.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/chaka.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/huagai1.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/huagai2.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/j.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/q.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/d.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/l.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/f.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/hc.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/jianjianglin.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/longjiao.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/bsj.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/guo.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/boxing.mp3?av=118" as="audio" type="audio/mpeg" />
-    <link rel="preload" href="./assets/audio/jianji.mp3?av=118" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/ydmusic.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/mocha.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/chouka.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/chaka.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/huagai1.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/huagai2.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/j.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/q.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/d.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/l.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/f.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/hc.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/jianjianglin.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/longjiao.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/bsj.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/guo.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/boxing.mp3?av=119" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="./assets/audio/jianji.mp3?av=119" as="audio" type="audio/mpeg" />
     <link rel="preload" href="./assets/images/bg4.png" as="image" type="image/png" />
     <link rel="preload" href="./assets/images/bg5.png" as="image" type="image/png" />
-    <link rel="stylesheet" href="./style.css?v=118" />
+    <link rel="stylesheet" href="./style.css?v=119" />
   </head>
   <body>
     <svg class="effect-definitions" aria-hidden="true" width="0" height="0">
@@ -147,21 +147,22 @@
         <button class="center-action-button center-action-button-2" id="centerActionButton2" type="button" aria-label="播放 jianji 音效"></button>
       </div>
 
-      <div class="aux-dock" id="auxDock" aria-label="右侧龙召机">
-        <img class="lzj-cover" id="lzj3Image" src="./assets/images/lzj3.png" alt="" />
-        <div class="lzj-card-slot-debug" id="lzjCardSlotDebug" aria-hidden="true"></div>
-        <div class="lzj-card-slot-mask" id="lzjCardSlotMask" aria-hidden="true">
-          <img class="lzj-inserted-card" id="lzjInsertedCard" src="./assets/images/kpc.png" alt="" />
+      <div class="aux-dock" id="auxDock" aria-label="右侧蛇杖">
+        <!-- 蛇杖四层，从下到上：sz2 / 卡槽区域 / sz1 / syfg。 -->
+        <img class="sz2-image" id="sz2Image" src="./assets/images/sz2.png" alt="" />
+        <div class="sz-card-slot-debug" id="szCardSlotDebug" aria-hidden="true"></div>
+        <div class="sz-card-slot-mask" id="szCardSlotMask" aria-hidden="true">
+          <img class="sz-inserted-card" id="szInsertedCard" src="./assets/images/kpc.png" alt="" />
         </div>
-        <img class="lzj-image lzj-image-active" id="lzj2Image" src="./assets/images/lzj2.png" alt="" />
-        <img class="lzj-image lzj-image-default" id="lzjImage" src="./assets/images/lzj.png" alt="" />
+        <img class="sz1-image" id="sz1Image" src="./assets/images/sz1.png" alt="" />
         <img class="aux-card-cover-mask" id="auxCardCoverMask" src="./assets/images/khzd.png" alt="" aria-hidden="true" />
-        <img class="aux-lyfg" id="lyfgImage" src="./assets/images/lyfg.png" alt="" aria-hidden="true" />
-        <button class="lzj-button" id="lzjButton" type="button" aria-label="操作龙召机"></button>
-        <button class="bs-button" id="bsButton" type="button" aria-label="打开龙召机"><img src="./assets/images/bs.png" alt="" /></button>
+        <img class="aux-syfg" id="syfgImage" src="./assets/images/syfg.png" alt="" aria-hidden="true" />
+        <button class="sz1-button" id="sz1Button" type="button" aria-label="弹出蛇杖卡槽"></button>
+        <button class="sz2-button" id="sz2Button" type="button" aria-label="确认蛇杖读卡"></button>
+        <button class="bs-button" id="bsButton" type="button" aria-label="打开蛇杖"><img src="./assets/images/bs.png" alt="" /></button>
       </div>
 
-      <!-- PWA：独立全屏拖卡层。正面卡从抽出到插入龙召机前始终只在这个固定容器内活动。 -->
+      <!-- PWA：独立全屏拖卡层。正面卡从抽出到插入蛇杖前始终只在这个固定容器内活动。 -->
       <div class="card-drag-layer" id="cardDragLayer" aria-hidden="true">
         <div class="aux-card-hit-debug" id="auxCardHitDebug" aria-hidden="true"></div>
         <div class="aux-transfer-card" id="auxTransferCard" aria-hidden="true"><img class="aux-transfer-card-image" id="auxTransferCardImage" src="./assets/images/kpc.png" alt="" /></div>
@@ -176,6 +177,6 @@
 
     </main>
 
-    <script src="./script.js?v=118"></script>
+    <script src="./script.js?v=119"></script>
   </body>
 </html>
