@@ -101,7 +101,7 @@ const ANIMATION_CONFIG = {
 
     // 最上层蛇眼发光 syfg。默认隐藏，只在插卡后点击 sz2 并播放卡片音效时显示。
     // showForTuning=true 可常亮显示，方便单独调位置和大小。
-    syfg: { x: 0, y: -460, width: 180, duration: 1, showForTuning: true },
+    syfg: { x: -10, y: -460, width: 180, duration: 1, showForTuning: true },
 
     // 中间层：沿用当前红框卡槽有效区，位置和插卡规则不改。
     // 只允许卡片从红框上方往下跨过顶部边界进入；左右/下方都不能触发插入。
