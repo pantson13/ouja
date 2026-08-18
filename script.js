@@ -200,9 +200,15 @@ const AUDIO_CONFIG = {
     1: "./assets/audio/j.mp3?av=123",
     2: "./assets/audio/s.mp3?av=123",
     3: "./assets/audio/f.mp3?av=123",
-    4: "./assets/audio/l.mp3?av=123",
-    5: "./assets/audio/f.mp3?av=123",
-    6: "./assets/audio/hc.mp3?av=123",
+    4: "./assets/audio/huiwu.mp3?av=123",
+    5: "./assets/audio/s.mp3?av=123",
+    6: "./assets/audio/f.mp3?av=123",
+    7: "./assets/audio/qx.mp3?av=123",
+    8: "./assets/audio/s.mp3?av=123",
+    9: "./assets/audio/f.mp3?av=123",
+    10: "./assets/audio/rh.mp3?av=123",
+    11: "./assets/audio/sd.mp3?av=123",
+    12: "./assets/audio/f.mp3?av=123",
   },
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
@@ -213,6 +219,10 @@ const AUDIO_CONFIG = {
     3: "./assets/audio/bsj.mp3?av=123",
     4: "./assets/audio/longjiao.mp3?av=123",
     5: "./assets/audio/bsj.mp3?av=123",
+    // WS9：f 基础音效完整播放结束后，再接 niujianglin。
+    9: "./assets/audio/niujianglin.mp3?av=123",
+    // WS10：rh 基础音效完整播放结束后，再接 rhjianglin。
+    10: "./assets/audio/rhjianglin.mp3?av=123",
   },
 };
 
