@@ -89,7 +89,9 @@ const ANIMATION_CONFIG = {
     bs: { x: 560, y: 330, width: 150 },
 
     // 蛇杖整体容器：x / y 为整体基准位置；slideX 为从 BS 弹出的距离。
-    container: { x: 0, y: 500, slideX: -510, duration: 0.42 },
+    // scale 为整个蛇杖本体缩放倍率：1 = 原大小，0.8 = 80%，1.2 = 120%。
+    // 只缩放 sz1 / sz2 / syfg / 卡槽及其内部偏移，不改变整个容器的 x / y / slideX。
+    container: { x: 0, y: 500, slideX: -510, scale: 1, duration: 0.42 },
 
     // 蛇杖遮挡层 sz1。点击 sz1 后，最底层 sz2 弹出。
     sz1: { x: 5, y: -410, width: 630 },
@@ -606,31 +608,38 @@ function applyPhoneLayout() {
   scene.style.setProperty("--bs-x", `${auxDevice.bs.x * scale}px`);
   scene.style.setProperty("--bs-y", `${auxDevice.bs.y * scale}px`);
   scene.style.setProperty("--bs-width", `${auxDevice.bs.width * scale}px`);
+
+  // 蛇杖整体缩放只作用于蛇杖本体与卡槽，不改变 container 的整体落点和 slideX。
+  // 这样改 scale 时，蛇杖不会顺带漂移，只会围绕当前容器基准整体变大/变小。
+  const snakeScaleValue = Number(auxDevice.container.scale);
+  const snakeScale = Number.isFinite(snakeScaleValue) && snakeScaleValue > 0 ? snakeScaleValue : 1;
+  const snakeUnit = scale * snakeScale;
+
   scene.style.setProperty("--sz-container-x", `${(auxDevice.container.x || 0) * scale}px`);
   scene.style.setProperty("--sz-container-y", `${(auxDevice.container.y || 0) * scale}px`);
   scene.style.setProperty("--sz-slide-x", `${auxDevice.container.slideX * scale}px`);
   scene.style.setProperty("--sz-duration", `${auxDevice.container.duration}s`);
 
-  scene.style.setProperty("--sz1-x", `${auxDevice.sz1.x * scale}px`);
-  scene.style.setProperty("--sz1-y", `${auxDevice.sz1.y * scale}px`);
-  scene.style.setProperty("--sz1-width", `${auxDevice.sz1.width * scale}px`);
+  scene.style.setProperty("--sz1-x", `${auxDevice.sz1.x * snakeUnit}px`);
+  scene.style.setProperty("--sz1-y", `${auxDevice.sz1.y * snakeUnit}px`);
+  scene.style.setProperty("--sz1-width", `${auxDevice.sz1.width * snakeUnit}px`);
 
-  scene.style.setProperty("--sz2-x", `${auxDevice.sz2.x * scale}px`);
-  scene.style.setProperty("--sz2-y", `${auxDevice.sz2.y * scale}px`);
-  scene.style.setProperty("--sz2-width", `${auxDevice.sz2.width * scale}px`);
-  scene.style.setProperty("--sz2-pop-y", `${(auxDevice.sz2.popY || 0) * scale}px`);
+  scene.style.setProperty("--sz2-x", `${auxDevice.sz2.x * snakeUnit}px`);
+  scene.style.setProperty("--sz2-y", `${auxDevice.sz2.y * snakeUnit}px`);
+  scene.style.setProperty("--sz2-width", `${auxDevice.sz2.width * snakeUnit}px`);
+  scene.style.setProperty("--sz2-pop-y", `${(auxDevice.sz2.popY || 0) * snakeUnit}px`);
 
-  scene.style.setProperty("--syfg-x", `${auxDevice.syfg.x * scale}px`);
-  scene.style.setProperty("--syfg-y", `${auxDevice.syfg.y * scale}px`);
-  scene.style.setProperty("--syfg-width", `${auxDevice.syfg.width * scale}px`);
+  scene.style.setProperty("--syfg-x", `${auxDevice.syfg.x * snakeUnit}px`);
+  scene.style.setProperty("--syfg-y", `${auxDevice.syfg.y * snakeUnit}px`);
+  scene.style.setProperty("--syfg-width", `${auxDevice.syfg.width * snakeUnit}px`);
   scene.style.setProperty("--syfg-duration", `${auxDevice.syfg.duration}s`);
-  scene.style.setProperty("--card-slot-x", `${auxDevice.cardSlot.x * scale}px`);
-  scene.style.setProperty("--card-slot-y", `${auxDevice.cardSlot.y * scale}px`);
-  scene.style.setProperty("--card-slot-width", `${auxDevice.cardSlot.width * scale}px`);
-  scene.style.setProperty("--card-slot-height", `${auxDevice.cardSlot.height * scale}px`);
-  scene.style.setProperty("--card-slot-card-x", `${auxDevice.cardSlot.cardX * scale}px`);
-  scene.style.setProperty("--card-slot-card-y", `${auxDevice.cardSlot.cardY * scale}px`);
-  scene.style.setProperty("--card-slot-card-width", `${auxDevice.cardSlot.cardWidth * scale}px`);
+  scene.style.setProperty("--card-slot-x", `${auxDevice.cardSlot.x * snakeUnit}px`);
+  scene.style.setProperty("--card-slot-y", `${auxDevice.cardSlot.y * snakeUnit}px`);
+  scene.style.setProperty("--card-slot-width", `${auxDevice.cardSlot.width * snakeUnit}px`);
+  scene.style.setProperty("--card-slot-height", `${auxDevice.cardSlot.height * snakeUnit}px`);
+  scene.style.setProperty("--card-slot-card-x", `${auxDevice.cardSlot.cardX * snakeUnit}px`);
+  scene.style.setProperty("--card-slot-card-y", `${auxDevice.cardSlot.cardY * snakeUnit}px`);
+  scene.style.setProperty("--card-slot-card-width", `${auxDevice.cardSlot.cardWidth * snakeUnit}px`);
   scene.classList.toggle("show-card-slot-debug", Boolean(auxDevice.cardSlot.showDebug));
   scene.classList.toggle("show-syfg-tuning", Boolean(auxDevice.syfg.showForTuning));
   scene.style.setProperty("--aux-ws-blur", `${auxDevice.wsBlur}px`);
@@ -1729,10 +1738,17 @@ function getAuxCardSlotRect() {
   if (!auxDock) return null;
   const { cardSlot: slot, container } = ANIMATION_CONFIG.auxDevice;
   const scale = sceneScale || 1;
-  const width = slot.width * scale;
-  const height = slot.height * scale;
-  const centerX = auxDockViewportOrigin.left + ((container.x || 0) + (container.slideX || 0) + slot.x) * scale;
-  const centerY = auxDockViewportOrigin.top + ((container.y || 0) + slot.y) * scale;
+  const snakeScaleValue = Number(container.scale);
+  const snakeScale = Number.isFinite(snakeScaleValue) && snakeScaleValue > 0 ? snakeScaleValue : 1;
+  const snakeUnit = scale * snakeScale;
+  const width = slot.width * snakeUnit;
+  const height = slot.height * snakeUnit;
+  const centerX = auxDockViewportOrigin.left
+    + ((container.x || 0) + (container.slideX || 0)) * scale
+    + slot.x * snakeUnit;
+  const centerY = auxDockViewportOrigin.top
+    + (container.y || 0) * scale
+    + slot.y * snakeUnit;
   return {
     left: centerX - width / 2,
     right: centerX + width / 2,
@@ -1821,8 +1837,11 @@ function isAuxKpcEnteringSlot(previousCardRect = null) {
   if (!targetRect) return false;
 
   const scale = sceneScale || 1;
-  const threshold = (ANIMATION_CONFIG.auxDevice.kpcDrag?.slotEnterThreshold || 0) * scale;
-  const topTolerance = (ANIMATION_CONFIG.auxDevice.kpcDrag?.slotTopEntryTolerance || 0) * scale;
+  const snakeScaleValue = Number(ANIMATION_CONFIG.auxDevice.container.scale);
+  const snakeScale = Number.isFinite(snakeScaleValue) && snakeScaleValue > 0 ? snakeScaleValue : 1;
+  const snakeUnit = scale * snakeScale;
+  const threshold = (ANIMATION_CONFIG.auxDevice.kpcDrag?.slotEnterThreshold || 0) * snakeUnit;
+  const topTolerance = (ANIMATION_CONFIG.auxDevice.kpcDrag?.slotTopEntryTolerance || 0) * snakeUnit;
 
   // 入口是单向的：必须从上往下移动。
   const movingDown = cardRect.centerY > previousCardRect.centerY + 0.5;
@@ -1850,9 +1869,12 @@ function showInsertedCardInSlot() {
 
   const scale = sceneScale || 1;
   const slot = ANIMATION_CONFIG.auxDevice.cardSlot;
-  const finalX = (slot.cardX || 0) * scale;
-  const finalY = (slot.cardY || 0) * scale;
-  const finalWidth = (slot.cardWidth || 280) * scale;
+  const snakeScaleValue = Number(ANIMATION_CONFIG.auxDevice.container.scale);
+  const snakeScale = Number.isFinite(snakeScaleValue) && snakeScaleValue > 0 ? snakeScaleValue : 1;
+  const snakeUnit = scale * snakeScale;
+  const finalX = (slot.cardX || 0) * snakeUnit;
+  const finalY = (slot.cardY || 0) * snakeUnit;
+  const finalWidth = (slot.cardWidth || 280) * snakeUnit;
 
   szInsertedCard.src = auxTransferCardImage.currentSrc || auxTransferCardImage.src;
 
