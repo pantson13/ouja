@@ -91,7 +91,7 @@ const ANIMATION_CONFIG = {
     // 蛇杖整体容器：x / y 为整体基准位置；slideX 为从 BS 弹出的距离。
     // scale 为整个蛇杖本体缩放倍率：1 = 原大小，0.8 = 80%，1.2 = 120%。
     // 只缩放 sz1 / sz2 / syfg / 卡槽及其内部偏移，不改变整个容器的 x / y / slideX。
-    container: { x: 0, y: 500, slideX: -510, scale: 1, duration: 0.42 },
+    container: { x: 0, y: 500, slideX: -510, scale: 1.5, duration: 0.42 },
 
     // 蛇杖遮挡层 sz1。点击 sz1 后，最底层 sz2 弹出。
     sz1: { x: 5, y: -410, width: 630 },
@@ -101,7 +101,7 @@ const ANIMATION_CONFIG = {
 
     // 最上层蛇眼发光 syfg。默认隐藏，只在插卡后点击 sz2 并播放卡片音效时显示。
     // showForTuning=true 可常亮显示，方便单独调位置和大小。
-    syfg: { x: -10, y: -470, width: 190, duration: 1, showForTuning: true },
+    syfg: { x: -10, y: -470, width: 190, duration: 1, showForTuning: false },
 
     // 中间层：沿用当前红框卡槽有效区，位置和插卡规则不改。
     // 只允许卡片从红框上方往下跨过顶部边界进入；左右/下方都不能触发插入。
