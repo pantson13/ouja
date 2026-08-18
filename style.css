@@ -939,6 +939,11 @@ body {
   opacity: 1;
 }
 
+/* 调试：sz1 视觉透明度降低到 50%，按钮命中层保持不变。 */
+.scene.is-aux-open .sz1-image {
+  opacity: 0.5;
+}
+
 .scene.is-aux-open .sz1-image,
 .scene.is-aux-open .sz1-button {
   transform: translate3d(
