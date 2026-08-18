@@ -91,7 +91,7 @@ const ANIMATION_CONFIG = {
     // 蛇杖整体容器：x / y 为整体基准位置；slideX 为从 BS 弹出的距离。
     // scale 为整个蛇杖本体缩放倍率：1 = 原大小，0.8 = 80%，1.2 = 120%。
     // 只缩放 sz1 / sz2 / syfg / 卡槽及其内部偏移，不改变整个容器的 x / y / slideX。
-    container: { x: 0, y: 500, slideX: -510, scale: 1.3, duration: 0.42 },
+    container: { x: 0, y: 500, slideX: -510, scale: 1.3, rotate: -20, duration: 0.42 },
 
     // 蛇杖遮挡层 sz1。点击 sz1 后，最底层 sz2 弹出。
     sz1: { x: 5, y: -410, width: 630 },
@@ -612,33 +612,51 @@ function applyPhoneLayout() {
   scene.style.setProperty("--bs-width", `${auxDevice.bs.width * scale}px`);
 
   // 蛇杖整体缩放只作用于蛇杖本体与卡槽，不改变 container 的整体落点和 slideX。
-  // 这样改 scale 时，蛇杖不会顺带漂移，只会围绕当前容器基准整体变大/变小。
+  // rotate 为整个蛇杖绕 container 基准点的整体旋转角度：负数逆时针，正数顺时针。
   const snakeScaleValue = Number(auxDevice.container.scale);
   const snakeScale = Number.isFinite(snakeScaleValue) && snakeScaleValue > 0 ? snakeScaleValue : 1;
   const snakeUnit = scale * snakeScale;
+  const snakeRotateValue = Number(auxDevice.container.rotate);
+  const snakeRotate = Number.isFinite(snakeRotateValue) ? snakeRotateValue : 0;
+  const snakeRotateRad = snakeRotate * Math.PI / 180;
+  const snakeRotateCos = Math.cos(snakeRotateRad);
+  const snakeRotateSin = Math.sin(snakeRotateRad);
+  const rotateSnakeOffset = (x = 0, y = 0) => ({
+    x: x * snakeRotateCos - y * snakeRotateSin,
+    y: x * snakeRotateSin + y * snakeRotateCos,
+  });
+
+  const sz1Offset = rotateSnakeOffset(auxDevice.sz1.x, auxDevice.sz1.y);
+  const sz2Offset = rotateSnakeOffset(auxDevice.sz2.x, auxDevice.sz2.y);
+  const sz2PopOffset = rotateSnakeOffset(0, auxDevice.sz2.popY || 0);
+  const syfgOffset = rotateSnakeOffset(auxDevice.syfg.x, auxDevice.syfg.y);
+  const cardSlotOffset = rotateSnakeOffset(auxDevice.cardSlot.x, auxDevice.cardSlot.y);
 
   scene.style.setProperty("--sz-container-x", `${(auxDevice.container.x || 0) * scale}px`);
   scene.style.setProperty("--sz-container-y", `${(auxDevice.container.y || 0) * scale}px`);
   scene.style.setProperty("--sz-slide-x", `${auxDevice.container.slideX * scale}px`);
+  scene.style.setProperty("--sz-rotate", `${snakeRotate}deg`);
   scene.style.setProperty("--sz-duration", `${auxDevice.container.duration}s`);
 
-  scene.style.setProperty("--sz1-x", `${auxDevice.sz1.x * snakeUnit}px`);
-  scene.style.setProperty("--sz1-y", `${auxDevice.sz1.y * snakeUnit}px`);
+  scene.style.setProperty("--sz1-x", `${sz1Offset.x * snakeUnit}px`);
+  scene.style.setProperty("--sz1-y", `${sz1Offset.y * snakeUnit}px`);
   scene.style.setProperty("--sz1-width", `${auxDevice.sz1.width * snakeUnit}px`);
 
-  scene.style.setProperty("--sz2-x", `${auxDevice.sz2.x * snakeUnit}px`);
-  scene.style.setProperty("--sz2-y", `${auxDevice.sz2.y * snakeUnit}px`);
+  scene.style.setProperty("--sz2-x", `${sz2Offset.x * snakeUnit}px`);
+  scene.style.setProperty("--sz2-y", `${sz2Offset.y * snakeUnit}px`);
   scene.style.setProperty("--sz2-width", `${auxDevice.sz2.width * snakeUnit}px`);
-  scene.style.setProperty("--sz2-pop-y", `${(auxDevice.sz2.popY || 0) * snakeUnit}px`);
+  scene.style.setProperty("--sz2-pop-x", `${sz2PopOffset.x * snakeUnit}px`);
+  scene.style.setProperty("--sz2-pop-y", `${sz2PopOffset.y * snakeUnit}px`);
 
-  scene.style.setProperty("--syfg-x", `${auxDevice.syfg.x * snakeUnit}px`);
-  scene.style.setProperty("--syfg-y", `${auxDevice.syfg.y * snakeUnit}px`);
+  scene.style.setProperty("--syfg-x", `${syfgOffset.x * snakeUnit}px`);
+  scene.style.setProperty("--syfg-y", `${syfgOffset.y * snakeUnit}px`);
   scene.style.setProperty("--syfg-width", `${auxDevice.syfg.width * snakeUnit}px`);
   scene.style.setProperty("--syfg-duration", `${auxDevice.syfg.duration}s`);
-  scene.style.setProperty("--card-slot-x", `${auxDevice.cardSlot.x * snakeUnit}px`);
-  scene.style.setProperty("--card-slot-y", `${auxDevice.cardSlot.y * snakeUnit}px`);
+  scene.style.setProperty("--card-slot-x", `${cardSlotOffset.x * snakeUnit}px`);
+  scene.style.setProperty("--card-slot-y", `${cardSlotOffset.y * snakeUnit}px`);
   scene.style.setProperty("--card-slot-width", `${auxDevice.cardSlot.width * snakeUnit}px`);
   scene.style.setProperty("--card-slot-height", `${auxDevice.cardSlot.height * snakeUnit}px`);
+  // cardX / cardY 位于已经旋转后的卡槽内部坐标系，不再二次旋转。
   scene.style.setProperty("--card-slot-card-x", `${auxDevice.cardSlot.cardX * snakeUnit}px`);
   scene.style.setProperty("--card-slot-card-y", `${auxDevice.cardSlot.cardY * snakeUnit}px`);
   scene.style.setProperty("--card-slot-card-width", `${auxDevice.cardSlot.cardWidth * snakeUnit}px`);
@@ -1743,26 +1761,76 @@ function getAuxCardSlotRect() {
   const snakeScaleValue = Number(container.scale);
   const snakeScale = Number.isFinite(snakeScaleValue) && snakeScaleValue > 0 ? snakeScaleValue : 1;
   const snakeUnit = scale * snakeScale;
+  const angleDegValue = Number(container.rotate);
+  const angleDeg = Number.isFinite(angleDegValue) ? angleDegValue : 0;
+  const angleRad = angleDeg * Math.PI / 180;
+  const cos = Math.cos(angleRad);
+  const sin = Math.sin(angleRad);
+  const rotatedSlotX = slot.x * cos - slot.y * sin;
+  const rotatedSlotY = slot.x * sin + slot.y * cos;
   const width = slot.width * snakeUnit;
   const height = slot.height * snakeUnit;
   const centerX = auxDockViewportOrigin.left
     + ((container.x || 0) + (container.slideX || 0)) * scale
-    + slot.x * snakeUnit;
+    + rotatedSlotX * snakeUnit;
   const centerY = auxDockViewportOrigin.top
     + (container.y || 0) * scale
-    + slot.y * snakeUnit;
+    + rotatedSlotY * snakeUnit;
+
+  // left/right/top/bottom 保留外接矩形，调试与兼容代码仍可读取；
+  // 真正的插卡判定在旋转后的卡槽局部坐标系中完成。
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  const absCos = Math.abs(cos);
+  const absSin = Math.abs(sin);
+  const aabbHalfWidth = halfWidth * absCos + halfHeight * absSin;
+  const aabbHalfHeight = halfWidth * absSin + halfHeight * absCos;
+
   return {
-    left: centerX - width / 2,
-    right: centerX + width / 2,
-    top: centerY - height / 2,
-    bottom: centerY + height / 2,
+    left: centerX - aabbHalfWidth,
+    right: centerX + aabbHalfWidth,
+    top: centerY - aabbHalfHeight,
+    bottom: centerY + aabbHalfHeight,
     width,
     height,
+    halfWidth,
+    halfHeight,
     centerX,
     centerY,
+    angleDeg,
+    angleRad,
   };
 }
 
+function getRectBoundsInAuxSlotSpace(rect, slotRect) {
+  const angle = -(slotRect?.angleRad || 0);
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  const toLocal = (x, y) => {
+    const dx = x - slotRect.centerX;
+    const dy = y - slotRect.centerY;
+    return {
+      x: dx * cos - dy * sin,
+      y: dx * sin + dy * cos,
+    };
+  };
+
+  const corners = [
+    toLocal(rect.left, rect.top),
+    toLocal(rect.right, rect.top),
+    toLocal(rect.right, rect.bottom),
+    toLocal(rect.left, rect.bottom),
+  ];
+  const center = toLocal(rect.centerX, rect.centerY);
+  return {
+    minX: Math.min(...corners.map((point) => point.x)),
+    maxX: Math.max(...corners.map((point) => point.x)),
+    minY: Math.min(...corners.map((point) => point.y)),
+    maxY: Math.max(...corners.map((point) => point.y)),
+    centerX: center.x,
+    centerY: center.y,
+  };
+}
 function getAuxFloatingCardRect() {
   // v96：auxTransferCard 永远位于固定全屏 cardDragLayer，因此只使用拖卡层坐标原点。
   const left = auxDragLayerViewportOrigin.left + auxKpcPosition.left;
@@ -1845,21 +1913,26 @@ function isAuxKpcEnteringSlot(previousCardRect = null) {
   const threshold = (ANIMATION_CONFIG.auxDevice.kpcDrag?.slotEnterThreshold || 0) * snakeUnit;
   const topTolerance = (ANIMATION_CONFIG.auxDevice.kpcDrag?.slotTopEntryTolerance || 0) * snakeUnit;
 
-  // 入口是单向的：必须从上往下移动。
-  const movingDown = cardRect.centerY > previousCardRect.centerY + 0.5;
-  if (!movingDown) return false;
+  const currentLocal = getRectBoundsInAuxSlotSpace(cardRect, targetRect);
+  const previousLocal = getRectBoundsInAuxSlotSpace(previousCardRect, targetRect);
+  const slotTop = -targetRect.halfHeight;
+  const slotLeft = -targetRect.halfWidth;
+  const slotRight = targetRect.halfWidth;
 
-  // 上一帧整张卡仍在卡槽上边缘之外；这样从左右侧或下方直接横穿红框永远不会被认成插入。
-  const wasAboveTopGate = previousCardRect.bottom <= targetRect.top + topTolerance;
+  // “从上往下”跟随蛇杖旋转后的卡槽方向，不再按屏幕垂直方向死判。
+  const movingDownIntoSlot = currentLocal.centerY > previousLocal.centerY + 0.5;
+  if (!movingDownIntoSlot) return false;
+
+  // 上一帧整张卡仍在旋转后卡槽的上沿之外。
+  const wasAboveTopGate = previousLocal.maxY <= slotTop + topTolerance;
   if (!wasAboveTopGate) return false;
 
-  // 卡片下边缘只要第一次碰到卡槽上沿线就算命中，不要求先进入红框内部。
-  const touchedTopEdge = cardRect.bottom >= targetRect.top;
+  // 卡片第一次碰到旋转后的真实上沿线即命中。
+  const touchedTopEdge = currentLocal.maxY >= slotTop;
   if (!touchedTopEdge) return false;
 
-  // 从顶部进入时还必须横向对准卡槽。slotEnterThreshold 这里只作为横向最小重叠量。
-  const overlapX = Math.min(cardRect.right, targetRect.right) - Math.max(cardRect.left, targetRect.left);
-  const horizontallyAligned = cardRect.centerX >= targetRect.left && cardRect.centerX <= targetRect.right;
+  const overlapX = Math.min(currentLocal.maxX, slotRight) - Math.max(currentLocal.minX, slotLeft);
+  const horizontallyAligned = currentLocal.centerX >= slotLeft && currentLocal.centerX <= slotRight;
   return horizontallyAligned && overlapX >= threshold;
 }
 
@@ -1880,11 +1953,19 @@ function showInsertedCardInSlot() {
 
   szInsertedCard.src = auxTransferCardImage.currentSrc || auxTransferCardImage.src;
 
-  // 第一步：在“刚碰到上沿线”的屏幕位置完成层级切换。
-  const localX = cardRect.centerX - slotRect.centerX;
-  const localY = cardRect.centerY - slotRect.centerY;
+  // 第一步：在“刚碰到旋转后上沿线”的屏幕位置完成层级切换。
+  // 卡槽父层已经旋转，因此先把屏幕坐标逆旋转回卡槽局部坐标。
+  const slotAngle = -(slotRect.angleRad || 0);
+  const slotCos = Math.cos(slotAngle);
+  const slotSin = Math.sin(slotAngle);
+  const deltaX = cardRect.centerX - slotRect.centerX;
+  const deltaY = cardRect.centerY - slotRect.centerY;
+  const localX = deltaX * slotCos - deltaY * slotSin;
+  const localY = deltaX * slotSin + deltaY * slotCos;
   szInsertedCard.style.width = `${auxKpcSize.width}px`;
   szInsertedCard.style.transform = `translate(-50%, -50%) translate3d(${localX}px, ${localY}px, 0)`;
+  // 切层瞬间先抵消父卡槽旋转，下一帧再跟随吸入一起转正到蛇杖角度。
+  szInsertedCard.style.rotate = `${-(slotRect.angleDeg || 0)}deg`;
   szInsertedCard.classList.remove("is-auto-intake");
   szCardSlotMask?.classList.add("is-active");
   auxTransferCard?.classList.add("is-consumed");
@@ -1895,6 +1976,7 @@ function showInsertedCardInSlot() {
     if (!auxCardInserted || !szInsertedCard) return;
     szInsertedCard.classList.add("is-auto-intake");
     szInsertedCard.style.width = `${finalWidth}px`;
+    szInsertedCard.style.rotate = "0deg";
     szInsertedCard.style.transform = `translate(-50%, -50%) translate3d(${finalX}px, ${finalY}px, 0)`;
   });
 }
@@ -1905,6 +1987,7 @@ function hideInsertedCardInSlot() {
     szInsertedCard.src = "./assets/images/kpc.png";
     szInsertedCard.style.removeProperty("width");
     szInsertedCard.style.removeProperty("transform");
+    szInsertedCard.style.removeProperty("rotate");
   }
 }
 
