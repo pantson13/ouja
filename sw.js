@@ -1,7 +1,7 @@
-// OUJA v123: editable-code network-first + stable media cache. Ryuki interaction base + 12 WS cards.
+// OUJA v123: editable-code network-first + stable media cache. OUJA interaction base + 12 WS cards.
 const BUILD = "123";
-const CACHE_PREFIX = "ryuki-pwa-";
-const CACHE_NAME = "ryuki-pwa-v123-stable";
+const CACHE_PREFIX = "ouja-pwa-";
+const CACHE_NAME = "ouja-pwa-v123-stable";
 const INSTALL_CACHE_NAME = `${CACHE_NAME}-install`;
 const INDEX_FALLBACK = `./index.html?appv=${BUILD}`;
 
@@ -134,7 +134,7 @@ self.addEventListener("message", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    // 只清理 Ryuki 自己的旧缓存，避免误删同一域名下其他 PWA/页面的 CacheStorage。
+    // 只清理 OUJA 自己的旧缓存，避免误删同一域名下其他 PWA/页面的 CacheStorage。
     await Promise.all(
       names
         .filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)

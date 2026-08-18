@@ -1,4 +1,4 @@
-/* OUJA v119: Ryuki interaction base + 12 WS cards */
+/* OUJA v119: OUJA interaction base + 12 WS cards */
 
 /*
  * iPhone 16 Pro Max 参数区
@@ -6,8 +6,8 @@
  * 坐标仍以 1179 × 2556 原始背景像素为单位，方便直接微调。
  */
 const PWA_BUILD = "123";
-window.__RYUKI_BUILD__ = `v${PWA_BUILD}`;
-document.documentElement.dataset.ryukiBuild = `v${PWA_BUILD}`;
+window.__OUJA_BUILD__ = `v${PWA_BUILD}`;
+document.documentElement.dataset.oujaBuild = `v${PWA_BUILD}`;
 // 每次真正启动 App 都使用不同会话标识。关键媒体在同一 build 下也不会复用上一次 PWA 进程里的媒体响应。
 const AUDIO_SESSION_ID = `${PWA_BUILD}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 // URL 只作为版本标记，不再靠它强制二次加载。实际版本由当前激活 SW 的原子缓存决定。
@@ -58,7 +58,7 @@ const ANIMATION_CONFIG = {
     duration: 0.72,
   },
   ws: {
-    // OUJA 的 12 张 WS 卡片。三排四列；仍沿用 Ryuki 原有 ws-card 交互。
+    // OUJA 的 12 张 WS 卡片。三排四列；仍沿用 OUJA 原有 ws-card 交互。
     // x / y 控制整组位置，cardWidth 控制统一显示宽度，gapX / gapY 控制间距，均可直接自定义。
     // 原图约 211×307 px，因此默认 cardWidth=211，图片高度按各自原始比例自动计算。
     x: -460,
@@ -85,13 +85,13 @@ const ANIMATION_CONFIG = {
     button2: { x: 90, y: 0, size: 110 },
   },
   auxDevice: {
-    // BS 按钮保留 Ryuki 原流程；x / y / width 可自行调整。
+    // BS 按钮保留 OUJA 原流程；x / y / width 可自行调整。
     bs: { x: 560, y: 330, width: 150 },
 
     // 蛇杖整体容器：x / y 为整体基准位置；slideX 为从 BS 弹出的距离。
     // scale 为整个蛇杖本体缩放倍率：1 = 原大小，0.8 = 80%，1.2 = 120%。
     // 只缩放 sz1 / sz2 / syfg / 卡槽及其内部偏移，不改变整个容器的 x / y / slideX。
-    container: { x: 0, y: 500, slideX: -450, scale: 1.3, rotate: -20, duration: 0.42 },
+    container: { x: 0, y: 500, slideX: -510, scale: 1.3, rotate: -20, duration: 0.42 },
 
     // 蛇杖遮挡层 sz1。点击 sz1 后，最底层 sz2 弹出。
     sz1: { x: 5, y: -410, width: 630 },
@@ -1557,7 +1557,7 @@ function handleSz2Click(event) {
 
 
   // 只有真正插入卡片后，点击 sz2 才显示 syfg。
-  // syfg 的显示与 Ryuki 的 lyfg 规则一致：卡片基础音效开始时出现，音效 ended 时消失。
+  // syfg 的显示与 OUJA 的 lyfg 规则一致：卡片基础音效开始时出现，音效 ended 时消失。
   if (hadInsertedCard && selectedWs) {
     auxResultPlayed = true;
     scene.classList.add("is-aux-playing");

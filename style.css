@@ -1,4 +1,4 @@
-/* OUJA v119: Ryuki interaction base + 12 WS cards */
+/* OUJA v119: OUJA interaction base + 12 WS cards */
 
 :root {
   color-scheme: dark;
@@ -740,7 +740,7 @@ body {
   opacity: 1;
 }
 
-/* 十二张 WS：三排四列。交互继续沿用 Ryuki 的 ws-card 事件逻辑。 */
+/* 十二张 WS：三排四列。交互继续沿用 OUJA 的 ws-card 事件逻辑。 */
 .ws-panel {
   position: absolute;
   z-index: 6;
