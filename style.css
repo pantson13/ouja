@@ -1386,6 +1386,13 @@ body {
   height: var(--center-button-2-size);
 }
 
+.center-action-button-3 {
+  left: var(--center-button-3-x);
+  top: var(--center-button-3-y);
+  width: var(--center-button-3-size);
+  height: var(--center-button-3-size);
+}
+
 .center-action-button:active {
   transform: translate(-50%, -50%) scale(0.92);
 }

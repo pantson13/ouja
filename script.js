@@ -77,12 +77,14 @@ const ANIMATION_CONFIG = {
     gap: 20,
   },
   centerButtons: {
-    // bg4 完整结束后出现的两颗圆形按钮。group x / y 为整体相对场景中心的位置。
-    // button1 / button2 的 x / y / size 都可单独调整，方便后续替换图标。
+    // bg4 完整结束后出现的三颗圆形按钮。group x / y 为整体相对场景中心的位置。
+    // 三颗按钮的 x / y / size 都可单独调整。
     x: 0,
     y: 40,
     button1: { x: -90, y: 0, size: 110 },
     button2: { x: 90, y: 0, size: 110 },
+    // 第三颗位于第二颗右边；默认继续保持 180 的横向中心间距。
+    button3: { x: 270, y: 0, size: 110 },
   },
   auxDevice: {
     // BS 按钮保留 OUJA 原流程；x / y / width 可自行调整。
@@ -192,6 +194,7 @@ const AUDIO_CONFIG = {
   guo: "./assets/audio/guo.mp3?av=123",
   boxing: "./assets/audio/boxing.mp3?av=123",
   jianji: "./assets/audio/jianji.mp3?av=123",
+  chaoxiao: "./assets/audio/chaoxiao.mp3?av=123",
   cardVoices: {
     1: "./assets/audio/j.mp3?av=123",
     2: "./assets/audio/s.mp3?av=123",
@@ -265,6 +268,17 @@ const auxTransferCardImage = document.querySelector("#auxTransferCardImage");
 const auxCardCoverMask = document.querySelector("#auxCardCoverMask");
 const cardCoverLayer = cardBox?.querySelector(".card-cover");
 const sideButtons = [...document.querySelectorAll(".side-control-button")];
+
+// 第三颗中间圆形按钮直接由脚本补入，避免为了一个按钮改 index.html 导致 PWA 旧导航缓存卡住。
+const centerActions = document.querySelector("#centerActions");
+if (centerActions && !document.querySelector("#centerActionButton3")) {
+  const button3 = document.createElement("button");
+  button3.className = "center-action-button center-action-button-3";
+  button3.id = "centerActionButton3";
+  button3.type = "button";
+  button3.setAttribute("aria-label", "播放 chaoxiao 音效");
+  centerActions.appendChild(button3);
+}
 const centerActionButtons = [...document.querySelectorAll(".center-action-button")];
 const syfgImage = document.querySelector("#syfgImage");
 const beltArt = document.querySelector("#beltArt");
@@ -339,6 +353,10 @@ let extractedStageTwoReplayActive = false;
 let reinsertReady = false;
 let suppressExtractedCardClick = false;
 let suppressExtractedCardClickTimer = 0;
+// 初始流程专用：腰带上移完成后，下一次“轻点卡盒”只播放一次 kh1。
+// 拖动不消耗这次机会；一旦 kh1 播放过，后续点击都不再触发。
+let postMoveKh1Ready = false;
+let postMoveKh1Played = false;
 let externalCardPointerTravel = 0;
 // iPhone/PWA：整卡盒从腰带抽出后使用独立 Touch Session，不依赖 Pointer Events。
 let extractPointerStart = { x: 0, y: 0 };
@@ -532,6 +550,7 @@ const huagai2Audio = new Audio(AUDIO_CONFIG.huagai2);
 const guoAudio = new Audio(AUDIO_CONFIG.guo);
 const boxingAudio = new Audio(AUDIO_CONFIG.boxing);
 const jianjiAudio = new Audio(AUDIO_CONFIG.jianji);
+const chaoxiaoAudio = new Audio(AUDIO_CONFIG.chaoxiao);
 const cardVoiceAudios = Object.fromEntries(
   Object.entries(AUDIO_CONFIG.cardVoices).map(([key, src]) => [key, new Audio(src)]),
 );
@@ -549,11 +568,13 @@ huagai2Audio.preload = "auto";
 guoAudio.preload = "auto";
 boxingAudio.preload = "auto";
 jianjiAudio.preload = "auto";
+chaoxiaoAudio.preload = "auto";
 Object.values(cardVoiceAudios).forEach((audio) => { audio.preload = "auto"; });
 Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "auto"; });
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
-  huagai1Audio, huagai2Audio, guoAudio, ...Object.values(cardVoiceAudios),
+  huagai1Audio, huagai2Audio, guoAudio, boxingAudio, jianjiAudio, chaoxiaoAudio,
+  ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
 ].forEach((audio) => audio.load());
 
@@ -607,6 +628,9 @@ function applyPhoneLayout() {
   scene.style.setProperty("--center-button-2-x", `${centerButtons.button2.x * scale}px`);
   scene.style.setProperty("--center-button-2-y", `${centerButtons.button2.y * scale}px`);
   scene.style.setProperty("--center-button-2-size", `${centerButtons.button2.size * scale}px`);
+  scene.style.setProperty("--center-button-3-x", `${centerButtons.button3.x * scale}px`);
+  scene.style.setProperty("--center-button-3-y", `${centerButtons.button3.y * scale}px`);
+  scene.style.setProperty("--center-button-3-size", `${centerButtons.button3.size * scale}px`);
   scene.style.setProperty("--bs-x", `${auxDevice.bs.x * scale}px`);
   scene.style.setProperty("--bs-y", `${auxDevice.bs.y * scale}px`);
   scene.style.setProperty("--bs-width", `${auxDevice.bs.width * scale}px`);
@@ -2258,6 +2282,7 @@ function resetToCard() {
   stopAudio(guoAudio);
   stopAudio(boxingAudio);
   stopAudio(jianjiAudio);
+  stopAudio(chaoxiaoAudio);
   stopAudio(huagai1Audio);
   stopAudio(huagai2Audio);
   Object.values(cardVoiceAudios).forEach(stopAudio);
@@ -2283,6 +2308,8 @@ function resetToCard() {
   suppressExtractedCardClick = false;
   clearTimeout(suppressExtractedCardClickTimer);
   suppressExtractedCardClickTimer = 0;
+  postMoveKh1Ready = false;
+  postMoveKh1Played = false;
   setCardExtractPosition(0, 0);
   flowStarted = false;
   setFlowPhase(FLOW_PHASE.IDLE);
@@ -2865,6 +2892,14 @@ function finishStageTwo() {
         reinsertReady = true;
       }
       enableCardDrag({ preservePosition: cardWasExtracted });
+
+      // 只在“第一次正常流程”的腰带上移完成后开放一次 kh1。
+      // 后续抽出卡盒再重播第二阶段时不重新开放。
+      if (!cardWasExtracted && finishingPhase === FLOW_PHASE.STAGE_TWO && !postMoveKh1Played) {
+        postMoveKh1Ready = true;
+        cardTrigger.setAttribute("aria-label", "点击一次播放 kh1；也可拖动卡盒插入腰带");
+      }
+
       extractedStageTwoReplayActive = false;
     }, move.duration * 1000),
   );
@@ -2960,35 +2995,40 @@ function startFromCard(event) {
     return;
   }
 
+  // 初始第二阶段结束并且腰带已经上移停止后：
+  // 只接受一次真正“轻点”来播放 kh1。拖动卡盒不会误触发，也不会消耗这次机会。
+  if (
+    postMoveKh1Ready &&
+    !postMoveKh1Played &&
+    !cardWasExtracted &&
+    isFlowPhase(FLOW_PHASE.CARD_DRAG) &&
+    externalCardPointerTravel <= 8
+  ) {
+    postMoveKh1Ready = false;
+    postMoveKh1Played = true;
+    cardTrigger.setAttribute("aria-label", "拖动卡盒至腰带右侧，再插入凹槽");
+    playAudio(kh1Audio).catch((error) => {
+      console.warn("腰带上移后 kh1 音效播放失败：", error);
+    });
+    return;
+  }
+
   if (flowStarted || !isFlowPhase(FLOW_PHASE.IDLE) || !cardTrigger.classList.contains("is-ready")) {
     return;
   }
 
   flowStarted = true;
-  setFlowPhase(FLOW_PHASE.FIRST_STAGE);
   cardTrigger.classList.remove("is-ready");
   cardTrigger.classList.add("is-waiting");
 
-  // 在 iPhone 的真实点击手势中预解锁后续自动音效。
+  // 第一次点击不再播放 kh1，也不再等待旧第一阶段。
+  // 仍在真实用户手势中预解锁后续关键音效，然后立即进入第二阶段。
   ydMusicInUse = false;
   insertionAudioInUse = false;
-  // 最早的真实用户点击就解锁并解码 mocha + charu。到第二阶段第一次拖动时只需直接播放。
   prepareCriticalSfxFromGesture(["mocha", "charu"]).catch(() => undefined);
-  primeAudio(ydMusicAudio, () => ydMusicInUse);
   prepareChakaSfxFromGesture().catch(() => undefined);
 
-  playAudio(kh1Audio).catch((error) => {
-    console.warn("kh1 音效播放失败：", error);
-    // 音效无法播放时不让流程停顿，立即进入第二阶段。
-    finishFirstStage();
-  });
-
-  sceneTimers.push(
-    setTimeout(() => {
-      // 仅作为最大等待时间与 Safari ended 事件异常时的保底。
-      finishFirstStage();
-    }, ANIMATION_CONFIG.firstStageDuration * 1000),
-  );
+  startStageTwo();
 }
 
 async function waitForSceneImages() {
@@ -3026,6 +3066,8 @@ cardTrigger.addEventListener("pointermove", handleCardPointerMove);
 cardTrigger.addEventListener("pointerup", handleCardPointerEnd);
 cardTrigger.addEventListener("pointercancel", handleCardPointerEnd);
 cardTrigger.addEventListener("contextmenu", (event) => event.preventDefault());
+// 兼容旧 FIRST_STAGE 的保底监听保留；当前初始流程已不进入 FIRST_STAGE，
+// 因此腰带上移后单独播放 kh1 结束时不会触发任何后续流程。
 kh1Audio.addEventListener("ended", finishFirstStage);
 ydMusicAudio.addEventListener("ended", finishStageTwo);
 window.addEventListener("resize", applyPhoneLayout);
@@ -3104,6 +3146,13 @@ centerActionButtons[1]?.addEventListener("click", (event) => {
   event.stopPropagation();
   playAudio(jianjiAudio).catch((error) => {
     console.warn("jianji 音效播放失败：", error);
+  });
+});
+centerActionButtons[2]?.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  playAudio(chaoxiaoAudio).catch((error) => {
+    console.warn("chaoxiao 音效播放失败：", error);
   });
 });
 auxTransferCard?.addEventListener("contextmenu", (event) => event.preventDefault());
