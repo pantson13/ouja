@@ -1,7 +1,7 @@
-// Ryuki v116: atomic core update. A build is either complete or it never activates.
-const BUILD = "116";
+// OUJA v117: atomic core update. Ryuki interaction base + 12 SW cards.
+const BUILD = "117";
 const CACHE_PREFIX = "ryuki-pwa-";
-const CACHE_NAME = "ryuki-pwa-v116-stable";
+const CACHE_NAME = "ryuki-pwa-v117-stable";
 const INSTALL_CACHE_NAME = `${CACHE_NAME}-install`;
 const INDEX_FALLBACK = `./index.html?appv=${BUILD}`;
 
@@ -35,12 +35,18 @@ const REQUIRED_ASSETS = [
 
 // 不影响第二阶段/整卡盒主流程的资源允许后续按需缓存。
 const OPTIONAL_ASSETS = [
-  "./assets/images/lq1.png",
-  "./assets/images/lq2.png",
-  "./assets/images/lq3.png",
-  "./assets/images/lq4.png",
-  "./assets/images/lq5.png",
-  "./assets/images/lq6.png",
+  "./assets/images/sw1.png",
+  "./assets/images/sw2.png",
+  "./assets/images/sw3.png",
+  "./assets/images/sw4.png",
+  "./assets/images/sw5.png",
+  "./assets/images/sw6.png",
+  "./assets/images/sw7.png",
+  "./assets/images/sw8.png",
+  "./assets/images/sw9.png",
+  "./assets/images/sw10.png",
+  "./assets/images/sw11.png",
+  "./assets/images/sw12.png",
   "./assets/images/bs.png",
   "./assets/images/lzj.png",
   "./assets/images/lzj2.png",
@@ -163,7 +169,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // 带 ?av=BUILD 的音频属于不可变 build 资源：Cache First。
-  // 这样同一次 v116 绝不会一会播放安装时的 charu、一会又被网络上的另一份覆盖。
+  // 这样同一次 v117 绝不会一会播放安装时的 charu、一会又被网络上的另一份覆盖。
   if (requestUrl.pathname.includes("/assets/audio/") && requestUrl.searchParams.get("av") === BUILD) {
     const cacheKey = canonicalRequest(request);
     event.respondWith((async () => {

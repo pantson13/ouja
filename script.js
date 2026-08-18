@@ -1,11 +1,11 @@
-/* Ryuki v116: main(47) cardTrigger self-capture drag + guarded state machine + atomic PWA */
+/* OUJA v117: Ryuki interaction base + 12 SW cards */
 
 /*
  * iPhone 16 Pro Max 参数区
  * 目标画布：440 × 956 CSS px（竖屏）。
  * 坐标仍以 1179 × 2556 原始背景像素为单位，方便直接微调。
  */
-const PWA_BUILD = "116";
+const PWA_BUILD = "117";
 window.__RYUKI_BUILD__ = `v${PWA_BUILD}`;
 document.documentElement.dataset.ryukiBuild = `v${PWA_BUILD}`;
 // 每次真正启动 App 都使用不同会话标识。关键媒体在同一 build 下也不会复用上一次 PWA 进程里的媒体响应。
@@ -58,10 +58,12 @@ const ANIMATION_CONFIG = {
     duration: 0.72,
   },
   lq: {
-    // 六张 lq 在 charu 结束后从界面左侧进入；上排 1/2/3，下排 4/5/6。
-    x: -400,
-    y: 420,
-    cardWidth: 280,
+    // OUJA 的 12 张 SW 卡片。三排四列；仍沿用 Ryuki 原有 lq-card 交互。
+    // x / y 控制整组位置，cardWidth 控制统一显示宽度，gapX / gapY 控制间距，均可直接自定义。
+    // 原图约 211×307 px，因此默认 cardWidth=211，图片高度按各自原始比例自动计算。
+    x: -460,
+    y: 250,
+    cardWidth: 211,
     gapX: 25,
     gapY: 25,
     entryDistance: 420,
@@ -179,30 +181,30 @@ const ANIMATION_CONFIG = {
 
 // 音效文件放在仓库 assets/audio/ 下；如文件格式不同，只改这里即可。
 const AUDIO_CONFIG = {
-  kh1: "./assets/audio/kh1.mp3?av=116",
-  ydmusic: "./assets/audio/ydmusic.mp3?av=116",
-  charu: "./assets/audio/charu.mp3?av=116",
-  mocha: "./assets/audio/mocha.mp3?av=116",
-  chouka: "./assets/audio/chouka.mp3?av=116",
-  chaka: "./assets/audio/chaka.mp3?av=116",
-  huagai1: "./assets/audio/huagai1.mp3?av=116",
-  huagai2: "./assets/audio/huagai2.mp3?av=116",
-  guo: "./assets/audio/guo.mp3?av=116",
-  boxing: "./assets/audio/boxing.mp3?av=116",
-  jianji: "./assets/audio/jianji.mp3?av=116",
+  kh1: "./assets/audio/kh1.mp3?av=117",
+  ydmusic: "./assets/audio/ydmusic.mp3?av=117",
+  charu: "./assets/audio/charu.mp3?av=117",
+  mocha: "./assets/audio/mocha.mp3?av=117",
+  chouka: "./assets/audio/chouka.mp3?av=117",
+  chaka: "./assets/audio/chaka.mp3?av=117",
+  huagai1: "./assets/audio/huagai1.mp3?av=117",
+  huagai2: "./assets/audio/huagai2.mp3?av=117",
+  guo: "./assets/audio/guo.mp3?av=117",
+  boxing: "./assets/audio/boxing.mp3?av=117",
+  jianji: "./assets/audio/jianji.mp3?av=117",
   cardVoices: {
-    1: "./assets/audio/j.mp3?av=116",
-    2: "./assets/audio/q.mp3?av=116",
-    3: "./assets/audio/d.mp3?av=116",
-    4: "./assets/audio/l.mp3?av=116",
-    5: "./assets/audio/f.mp3?av=116",
-    6: "./assets/audio/hc.mp3?av=116",
+    1: "./assets/audio/j.mp3?av=117",
+    2: "./assets/audio/q.mp3?av=117",
+    3: "./assets/audio/d.mp3?av=117",
+    4: "./assets/audio/l.mp3?av=117",
+    5: "./assets/audio/f.mp3?av=117",
+    6: "./assets/audio/hc.mp3?av=117",
   },
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
-    1: "./assets/audio/jianjianglin.mp3?av=116",
-    4: "./assets/audio/longjiao.mp3?av=116",
-    5: "./assets/audio/bsj.mp3?av=116",
+    1: "./assets/audio/jianjianglin.mp3?av=117",
+    4: "./assets/audio/longjiao.mp3?av=117",
+    5: "./assets/audio/bsj.mp3?av=117",
   },
 };
 

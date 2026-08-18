@@ -1,4 +1,4 @@
-/* Ryuki v116: main(47) cardTrigger self-capture drag + stable PWA */
+/* OUJA v117: Ryuki interaction base + 12 SW cards */
 
 :root {
   color-scheme: dark;
@@ -736,14 +736,14 @@ body {
   opacity: 1;
 }
 
-/* 六张 lq：左下方两排，上 1/2/3，下 4/5/6。 */
+/* 十二张 SW：三排四列。交互继续沿用 Ryuki 的 lq-card 事件逻辑。 */
 .lq-panel {
   position: absolute;
   z-index: 6;
   top: 50%;
   left: 50%;
   display: grid;
-  grid-template-columns: repeat(3, var(--lq-card-width));
+  grid-template-columns: repeat(4, var(--lq-card-width));
   grid-auto-rows: auto;
   column-gap: var(--lq-gap-x);
   row-gap: var(--lq-gap-y);
@@ -797,6 +797,12 @@ body {
 .scene.show-lq .lq-card:nth-child(4) { transition-delay: 0.15s; }
 .scene.show-lq .lq-card:nth-child(5) { transition-delay: 0.20s; }
 .scene.show-lq .lq-card:nth-child(6) { transition-delay: 0.25s; }
+.scene.show-lq .lq-card:nth-child(7) { transition-delay: 0.30s; }
+.scene.show-lq .lq-card:nth-child(8) { transition-delay: 0.35s; }
+.scene.show-lq .lq-card:nth-child(9) { transition-delay: 0.40s; }
+.scene.show-lq .lq-card:nth-child(10) { transition-delay: 0.45s; }
+.scene.show-lq .lq-card:nth-child(11) { transition-delay: 0.50s; }
+.scene.show-lq .lq-card:nth-child(12) { transition-delay: 0.55s; }
 
 .lq-card.is-selected {
   filter: brightness(1.14) drop-shadow(0 0 8px rgb(255 255 255 / 50%));
