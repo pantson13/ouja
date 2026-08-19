@@ -1593,9 +1593,13 @@ function handleSz2Click(event) {
   auxDock?.classList.remove("is-armed", "is-card-inserted");
   sz2Button?.classList.remove("is-result-ready");
 
-  // 蛇杖第二步：点击 sz2 立即触发 huagai2；sz2 同时开始复位。
-  playAudio(huagai2Audio).catch((error) => {
-    console.warn("蛇杖 sz2 / huagai2 音效播放失败：", error);
+  // 蛇杖第二步：
+  // 没有插卡时，点击 sz2 与 sz1 一样播放 huagai1；
+  // 只有蛇杖中真正有卡片时，点击 sz2 才播放 huagai2。
+  const sz2Audio = hadInsertedCard ? huagai2Audio : huagai1Audio;
+  const sz2AudioName = hadInsertedCard ? "huagai2" : "huagai1";
+  playAudio(sz2Audio).catch((error) => {
+    console.warn(`蛇杖 sz2 / ${sz2AudioName} 音效播放失败：`, error);
   });
 
 
