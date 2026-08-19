@@ -2942,10 +2942,15 @@ function finishStageTwo() {
       }
       enableCardDrag({ preservePosition: cardWasExtracted });
 
-      // 只在“第一次正常流程”的腰带上移完成后开放一次 kh1。
-      // 后续抽出卡盒再重播第二阶段时不重新开放。
-      if (!cardWasExtracted && finishingPhase === FLOW_PHASE.STAGE_TWO && !postMoveKh1Played) {
+      // 每一轮第二阶段结束、腰带真正上移停止后，都重新开放一次 kh1。
+      // 包括：首次流程，以及卡盒拖出后重新循环的 REPLAY_STAGE_TWO。
+      // 这样每一轮腰带重新出现到上方后，下一次轻点都能且只能触发一次 kh1。
+      if (
+        finishingPhase === FLOW_PHASE.STAGE_TWO ||
+        finishingPhase === FLOW_PHASE.REPLAY_STAGE_TWO
+      ) {
         postMoveKh1Ready = true;
+        postMoveKh1Played = false;
         cardTrigger.setAttribute("aria-label", "点击一次播放 kh1；也可拖动卡盒插入腰带");
       }
 
@@ -3044,12 +3049,12 @@ function startFromCard(event) {
     return;
   }
 
-  // 初始第二阶段结束并且腰带已经上移停止后：
-  // 只接受一次真正“轻点”来播放 kh1。拖动卡盒不会误触发，也不会消耗这次机会。
+  // 每一轮第二阶段结束并且腰带已经上移停止后：
+  // 只接受一次真正“轻点”来播放 kh1。首次流程和卡盒拖出后的循环流程都适用。
+  // 拖动卡盒不会误触发，也不会消耗这次机会。
   if (
     postMoveKh1Ready &&
     !postMoveKh1Played &&
-    !cardWasExtracted &&
     isFlowPhase(FLOW_PHASE.CARD_DRAG) &&
     externalCardPointerTravel <= 8
   ) {
