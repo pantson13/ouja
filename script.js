@@ -215,18 +215,18 @@ const AUDIO_CONFIG = {
   },
   // 读卡追加音效：必须等对应基础卡片音效真正 ended 后再播放。
   cardVoiceFollowUps: {
-    1: "./assets/audio/jianjianglin.mp3?av=123",
+    1: "./assets/audio/jianjianglin.mp3?av=123-jj2",
     // WS2：s 基础音效 ended 后接 shejiao，绝不重叠。
     2: "./assets/audio/shejiao.mp3?av=123",
     // WS3：f 基础音效 ended 后接 bsj，绝不重叠。
     3: "./assets/audio/bsj.mp3?av=123",
     // WS4：j 完整播放结束后接 jianjianglin。
-    4: "./assets/audio/jianjianglin.mp3?av=123",
+    4: "./assets/audio/jianjianglin.mp3?av=123-jj2",
     // WS5 只播放基础 s，不追加后续音效。
     // WS6：f 完整播放结束后接 moguiyu。
     6: "./assets/audio/moguiyu.mp3?av=123",
     // WS7：j 完整播放结束后接 jianjianglin。
-    7: "./assets/audio/jianjianglin.mp3?av=123",
+    7: "./assets/audio/jianjianglin.mp3?av=123-jj2",
     // WS8：s 完整播放结束后接 xiniujiao。
     8: "./assets/audio/xiniujiao.mp3?av=123",
     // WS9：f 基础音效完整播放结束后，再接 niujianglin。
