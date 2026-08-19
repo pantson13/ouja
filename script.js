@@ -218,7 +218,7 @@ const AUDIO_CONFIG = {
     // WS3：f 基础音效 ended 后接 bsj，绝不重叠。
     3: "./assets/audio/bsj.mp3?av=123",
     4: "./assets/audio/longjiao.mp3?av=123",
-    5: "./assets/audio/bsj.mp3?av=123",
+    // WS5 只播放基础 s，不再追加 bsj。
     // WS9：f 基础音效完整播放结束后，再接 niujianglin。
     9: "./assets/audio/niujianglin.mp3?av=123",
     // WS10：rh 基础音效完整播放结束后，再接 rhjianglin。
@@ -1181,6 +1181,12 @@ function startMirrorShatter() {
   const durationMs = ANIMATION_CONFIG.shatter.duration * 1000;
   scene.classList.add("is-shattering");
   shatterCanvas.classList.add("is-active");
+
+  // jiechu 与破碎动画绑定：只有破碎 Canvas 已成功建立并正式进入 is-shattering 时才播放。
+  // 不再绑定“卡盒拖出完成”事件。
+  playAudio(jiechuAudio).catch((error) => {
+    console.warn("破碎动画 jiechu 音效播放失败：", error);
+  });
 
   function drawFrame(elapsed) {
     const overall = Math.min(1, Math.max(0, elapsed / durationMs));
@@ -2792,6 +2798,11 @@ function handleExtractPointerDown(event) {
   cardBox.classList.add("is-extracting");
   syncCenterActionButtons();
   playMochaOnCardBoxPress();
+
+  // 只做静音解锁，不触发声音。真正的 jiechu 只在破碎动画正式启动时播放。
+  // 这样避免 iPhone/PWA 因动画启动已离开 pointerdown 调用栈而拒绝 HTMLAudio.play()。
+  primeAudio(jiechuAudio, () => scene.classList.contains("is-shattering")).catch(() => undefined);
+
   cardBox.setPointerCapture?.(event.pointerId);
 }
 
@@ -2837,12 +2848,6 @@ function completeCardExtraction(pointerId) {
   activePointerId = null;
   parallelReached = false;
   hideWsPanel();
-
-  // 卡盒真正成功拖出腰带时播放解除音效。
-  // 只有完整达到抽出阈值进入 completeCardExtraction() 才触发，拖一半松手不会响。
-  playAudio(jiechuAudio).catch((error) => {
-    console.warn("jiechu 音效播放失败：", error);
-  });
 
   // 卡盒真正离开腰带后，彻底作废这一轮仍未结束的 bg4/bg5 回调。
   // 先固定到 bg3 再做碎裂，避免旧 animationend/timeout 在下一轮流程里重新塞回背景。
