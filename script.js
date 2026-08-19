@@ -192,6 +192,9 @@ const AUDIO_CONFIG = {
   huagai1: "./assets/audio/huagai1.mp3?av=123",
   huagai2: "./assets/audio/huagai2.mp3?av=123",
   guo: "./assets/audio/guo.mp3?av=123",
+  huhuan: "./assets/audio/huhuan.mp3?av=123",
+  jingshijie: "./assets/audio/jingshijie.mp3?av=123",
+  timeout: "./assets/audio/timeout.mp3?av=123",
   boxing: "./assets/audio/boxing.mp3?av=123",
   jianji: "./assets/audio/jianji.mp3?av=123",
   chaoxiao: "./assets/audio/chaoxiao.mp3?av=123",
@@ -200,10 +203,10 @@ const AUDIO_CONFIG = {
     1: "./assets/audio/j.mp3?av=123",
     2: "./assets/audio/s.mp3?av=123",
     3: "./assets/audio/f.mp3?av=123",
-    4: "./assets/audio/huiwu.mp3?av=123",
+    4: "./assets/audio/j.mp3?av=123",
     5: "./assets/audio/s.mp3?av=123",
     6: "./assets/audio/f.mp3?av=123",
-    7: "./assets/audio/qx.mp3?av=123",
+    7: "./assets/audio/j.mp3?av=123",
     8: "./assets/audio/s.mp3?av=123",
     9: "./assets/audio/f.mp3?av=123",
     10: "./assets/audio/rh.mp3?av=123",
@@ -217,8 +220,15 @@ const AUDIO_CONFIG = {
     2: "./assets/audio/shejiao.mp3?av=123",
     // WS3：f 基础音效 ended 后接 bsj，绝不重叠。
     3: "./assets/audio/bsj.mp3?av=123",
-    4: "./assets/audio/longjiao.mp3?av=123",
-    // WS5 只播放基础 s，不再追加 bsj。
+    // WS4：j 完整播放结束后接 jianjianglin。
+    4: "./assets/audio/jianjianglin.mp3?av=123",
+    // WS5 只播放基础 s，不追加后续音效。
+    // WS6：f 完整播放结束后接 moguiyu。
+    6: "./assets/audio/moguiyu.mp3?av=123",
+    // WS7：j 完整播放结束后接 jianjianglin。
+    7: "./assets/audio/jianjianglin.mp3?av=123",
+    // WS8：s 完整播放结束后接 xiniujiao。
+    8: "./assets/audio/xiniujiao.mp3?av=123",
     // WS9：f 基础音效完整播放结束后，再接 niujianglin。
     9: "./assets/audio/niujianglin.mp3?av=123",
     // WS10：rh 基础音效完整播放结束后，再接 rhjianglin。
@@ -559,6 +569,9 @@ const chakaAudio = new Audio(AUDIO_CONFIG.chaka);
 const huagai1Audio = new Audio(AUDIO_CONFIG.huagai1);
 const huagai2Audio = new Audio(AUDIO_CONFIG.huagai2);
 const guoAudio = new Audio(AUDIO_CONFIG.guo);
+const huhuanAudio = new Audio(AUDIO_CONFIG.huhuan);
+const jingshijieAudio = new Audio(AUDIO_CONFIG.jingshijie);
+const timeoutAudio = new Audio(AUDIO_CONFIG.timeout);
 const boxingAudio = new Audio(AUDIO_CONFIG.boxing);
 const jianjiAudio = new Audio(AUDIO_CONFIG.jianji);
 const chaoxiaoAudio = new Audio(AUDIO_CONFIG.chaoxiao);
@@ -578,6 +591,9 @@ chakaAudio.preload = "auto";
 huagai1Audio.preload = "auto";
 huagai2Audio.preload = "auto";
 guoAudio.preload = "auto";
+huhuanAudio.preload = "auto";
+jingshijieAudio.preload = "auto";
+timeoutAudio.preload = "auto";
 boxingAudio.preload = "auto";
 jianjiAudio.preload = "auto";
 chaoxiaoAudio.preload = "auto";
@@ -586,7 +602,8 @@ Object.values(cardVoiceAudios).forEach((audio) => { audio.preload = "auto"; });
 Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "auto"; });
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
-  huagai1Audio, huagai2Audio, guoAudio, boxingAudio, jianjiAudio, chaoxiaoAudio, jiechuAudio,
+  huagai1Audio, huagai2Audio, guoAudio, huhuanAudio, jingshijieAudio, timeoutAudio,
+  boxingAudio, jianjiAudio, chaoxiaoAudio, jiechuAudio,
   ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
 ].forEach((audio) => audio.load());
@@ -2303,6 +2320,9 @@ function resetToCard() {
   stopAudio(choukaAudio);
   stopAudio(chakaAudio);
   stopAudio(guoAudio);
+  stopAudio(huhuanAudio);
+  stopAudio(jingshijieAudio);
+  stopAudio(timeoutAudio);
   stopAudio(boxingAudio);
   stopAudio(jianjiAudio);
   stopAudio(chaoxiaoAudio);
@@ -3161,6 +3181,30 @@ sideButtons[0]?.addEventListener("click", (event) => {
   event.stopPropagation();
   playAudio(guoAudio).catch((error) => {
     console.warn("guo 音效播放失败：", error);
+  });
+});
+
+sideButtons[1]?.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  playAudio(huhuanAudio).catch((error) => {
+    console.warn("huhuan 音效播放失败：", error);
+  });
+});
+
+sideButtons[2]?.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  playAudio(jingshijieAudio).catch((error) => {
+    console.warn("jingshijie 音效播放失败：", error);
+  });
+});
+
+sideButtons[3]?.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  playAudio(timeoutAudio).catch((error) => {
+    console.warn("timeout 音效播放失败：", error);
   });
 });
 centerActionButtons[0]?.addEventListener("click", (event) => {
