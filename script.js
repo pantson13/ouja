@@ -283,6 +283,24 @@ const sz2Image = document.querySelector("#sz2Image");
 const szCardSlotMask = document.querySelector("#szCardSlotMask");
 const szInsertedCard = document.querySelector("#szInsertedCard");
 const cardDragLayer = document.querySelector("#cardDragLayer");
+
+// 仅刷新这次实际替换过的旧图片。
+// index.html 仍由 PWA 导航缓存返回，因此由 Network First 的 script.js 在启动时覆盖图片 URL，
+// 不需要升级整个 BUILD，也不会让其它图片重新下载。
+const IMAGE_REFRESH = {
+  kpc: "./assets/images/kpc.png?iv=2",
+  sz1: "./assets/images/sz1.png?iv=2",
+};
+
+document
+  .querySelectorAll('img[src="./assets/images/kpc.png"]')
+  .forEach((image) => {
+    image.src = IMAGE_REFRESH.kpc;
+  });
+
+if (sz1Image) {
+  sz1Image.src = IMAGE_REFRESH.sz1;
+}
 const auxCardHitDebug = document.querySelector("#auxCardHitDebug");
 const auxTransferCard = document.querySelector("#auxTransferCard");
 const auxTransferCardImage = document.querySelector("#auxTransferCardImage");
@@ -1496,7 +1514,7 @@ function resetAuxDevice(options = {}) {
   hideInsertedCardInSlot();
   sz2Button?.classList.remove("is-result-ready");
   auxCardCoverMask?.classList.remove("is-visible");
-  if (auxTransferCardImage) auxTransferCardImage.src = "./assets/images/kpc.png";
+  if (auxTransferCardImage) auxTransferCardImage.src = IMAGE_REFRESH.kpc;
   syfgImage?.classList.remove("is-active");
   if (auxTransferCard) {
     auxTransferCard.style.removeProperty("--aux-card-x");
@@ -1679,7 +1697,7 @@ function handoffAuxKpcToFloatingCard(event) {
   const top = cardRect.top - auxDragLayerViewportOrigin.top;
 
   const selectedSrc = getSelectedWsImageSrc();
-  if (auxTransferCardImage) auxTransferCardImage.src = selectedSrc || "./assets/images/kpc.png";
+  if (auxTransferCardImage) auxTransferCardImage.src = selectedSrc || IMAGE_REFRESH.kpc;
   auxTransferCard.classList.remove("is-consumed", "is-inserted");
   sz2Button?.classList.remove("is-result-ready");
 
@@ -2048,7 +2066,7 @@ function hideInsertedCardInSlot() {
   szCardSlotMask?.classList.remove("is-active");
   if (szInsertedCard) {
     szInsertedCard.classList.remove("is-auto-intake");
-    szInsertedCard.src = "./assets/images/kpc.png";
+    szInsertedCard.src = IMAGE_REFRESH.kpc;
     szInsertedCard.style.removeProperty("width");
     szInsertedCard.style.removeProperty("transform");
     szInsertedCard.style.removeProperty("rotate");
