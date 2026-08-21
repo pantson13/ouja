@@ -1358,12 +1358,8 @@ body {
   position: absolute;
   padding: 0;
   margin: 0;
-  border-radius: 50%;
-  border: 2px solid rgb(255 255 255 / 72%);
-  background: rgb(10 16 22 / 58%);
-  box-shadow:
-    inset 0 0 14px rgb(255 255 255 / 12%),
-    0 0 14px rgb(80 180 255 / 28%);
+  border: 0;
+  background: transparent;
   appearance: none;
   -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;
@@ -1393,18 +1389,31 @@ body {
   height: var(--center-button-3-size);
 }
 
+
+
+.center-action-button img,
+.side-control-button img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
 .center-action-button:active {
   transform: translate(-50%, -50%) scale(0.92);
 }
 
-/* 左下角常驻四颗圆形按钮。位置和大小由 script.js 的 sideButtons 参数控制。 */
+/* 直接复用 Ryuki：原左下角四颗按钮移到中间第二排，横向排列。 */
 .side-controls {
   position: absolute;
   z-index: 14;
   top: 50%;
   left: 50%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: var(--side-button-gap);
   transform: translate3d(var(--side-buttons-x), var(--side-buttons-y), 0);
   pointer-events: auto;
@@ -1416,12 +1425,8 @@ body {
   flex: 0 0 var(--side-button-size);
   padding: 0;
   margin: 0;
-  border-radius: 50%;
-  border: 2px solid rgb(255 255 255 / 72%);
-  background: rgb(10 16 22 / 58%);
-  box-shadow:
-    inset 0 0 14px rgb(255 255 255 / 12%),
-    0 0 12px rgb(80 180 255 / 24%);
+  border: 0;
+  background: transparent;
   appearance: none;
   -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;

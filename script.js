@@ -70,21 +70,21 @@ const ANIMATION_CONFIG = {
     duration: 0.45,
   },
   sideButtons: {
-    // 左下角常驻 4 个圆形按钮：x / y 为第一颗按钮中心相对场景中心的位置。
-    x: -520,
-    y: 420,
-    size: 84,
-    gap: 20,
+    // 直接复用 Ryuki：原左下角 4 个按钮移到中间第二排。
+    // x / y 为整排左上角相对场景中心的位置。
+    x: -454,
+    y: 1070,
+    size: 157,
+    gap: 80,
   },
   centerButtons: {
-    // bg4 完整结束后出现的三颗圆形按钮。group x / y 为整体相对场景中心的位置。
-    // 三颗按钮的 x / y / size 都可单独调整。
+    // 直接复用 Ryuki：第一排 an1 / an2 / an3。
+    // 三颗按钮保持相同 237 的横向中心间距。
     x: 0,
-    y: 40,
-    button1: { x: -90, y: 0, size: 110 },
-    button2: { x: 90, y: 0, size: 110 },
-    // 第三颗位于第二颗右边；默认继续保持 180 的横向中心间距。
-    button3: { x: 270, y: 0, size: 110 },
+    y: 930,
+    button1: { x: -375, y: 0, size: 157 },
+    button2: { x: -138, y: 0, size: 157 },
+    button3: { x: 99, y: 0, size: 157 },
   },
   auxDevice: {
     // BS 按钮保留 OUJA 原流程；x / y / width 可自行调整。
@@ -315,10 +315,45 @@ if (centerActions && !document.querySelector("#centerActionButton3")) {
   button3.className = "center-action-button center-action-button-3";
   button3.id = "centerActionButton3";
   button3.type = "button";
-  button3.setAttribute("aria-label", "播放 chaoxiao 音效");
   centerActions.appendChild(button3);
 }
 const centerActionButtons = [...document.querySelectorAll(".center-action-button")];
+
+// 按钮视觉复用 Ryuki 的 an1 / an2 / an3 / an5-an8。
+// OUJA 的 HTML 仍保留原按钮节点，第三颗 an3 由脚本补入。
+const BUTTON_IMAGE_CONFIG = {
+  center: [
+    { src: "./assets/images/an1.png", label: "播放 boxing 音效" },
+    { src: "./assets/images/an2.png", label: "播放 jianji 音效" },
+    { src: "./assets/images/an3.png", label: "播放 chaoxiao 音效" },
+  ],
+  side: [
+    { src: "./assets/images/an5.png", label: "播放 guo 音效" },
+    { src: "./assets/images/an6.png", label: "播放 huhuan 音效" },
+    { src: "./assets/images/an7.png", label: "播放 jingshijie 音效" },
+    { src: "./assets/images/an8.png", label: "播放 timeout 音效" },
+  ],
+};
+
+function applyRyukiButtonImages(buttons, configs) {
+  buttons.forEach((button, index) => {
+    const config = configs[index];
+    if (!button || !config) return;
+
+    button.setAttribute("aria-label", config.label);
+
+    let image = button.querySelector("img");
+    if (!image) {
+      image = document.createElement("img");
+      image.alt = "";
+      button.appendChild(image);
+    }
+    image.src = config.src;
+  });
+}
+
+applyRyukiButtonImages(centerActionButtons, BUTTON_IMAGE_CONFIG.center);
+applyRyukiButtonImages(sideButtons, BUTTON_IMAGE_CONFIG.side);
 const syfgImage = document.querySelector("#syfgImage");
 const beltArt = document.querySelector("#beltArt");
 const characterReveal = document.querySelector(".character-reveal");
@@ -3244,6 +3279,7 @@ centerActionButtons[1]?.addEventListener("click", (event) => {
     console.warn("jianji 音效播放失败：", error);
   });
 });
+
 centerActionButtons[2]?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
