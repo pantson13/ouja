@@ -62,7 +62,7 @@ const ANIMATION_CONFIG = {
     // x / y 控制整组位置，cardWidth 控制统一显示宽度，gapX / gapY 控制间距，均可直接自定义。
     // 原图约 211×307 px，因此默认 cardWidth=211，图片高度按各自原始比例自动计算。
     x: -460,
-    y: 250,
+    y: -150,
     cardWidth: 211,
     gapX: 25,
     gapY: 25,
