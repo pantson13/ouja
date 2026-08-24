@@ -198,6 +198,7 @@ const AUDIO_CONFIG = {
   boxing: "./assets/audio/boxing.mp3?av=123",
   jianji: "./assets/audio/jianji.mp3?av=123",
   jianji2: "./assets/audio/jianji2.mp3?av=123",
+  jianji3: "./assets/audio/jianji3.mp3?av=123",
   chaoxiao: "./assets/audio/chaoxiao.mp3?av=123",
   jiechu: "./assets/audio/jiechu.mp3?av=123",
   cardVoices: {
@@ -336,7 +337,7 @@ const centerActionButtons = [...document.querySelectorAll(".center-action-button
 const BUTTON_IMAGE_CONFIG = {
   center: [
     { src: "./assets/images/an1.png", label: "播放 boxing 音效" },
-    { src: "./assets/images/an2.png", label: "播放 jianji 音效" },
+    { src: "./assets/images/an2.png", label: "短按播放 jianji3，长按播放 jianji2" },
     { src: "./assets/images/an3.png", label: "播放 chaoxiao 音效" },
   ],
   side: [
@@ -640,6 +641,7 @@ const timeoutAudio = new Audio(AUDIO_CONFIG.timeout);
 const boxingAudio = new Audio(AUDIO_CONFIG.boxing);
 const jianjiAudio = new Audio(AUDIO_CONFIG.jianji);
 const jianji2Audio = new Audio(AUDIO_CONFIG.jianji2);
+const jianji3Audio = new Audio(AUDIO_CONFIG.jianji3);
 const chaoxiaoAudio = new Audio(AUDIO_CONFIG.chaoxiao);
 const jiechuAudio = new Audio(AUDIO_CONFIG.jiechu);
 const cardVoiceAudios = Object.fromEntries(
@@ -663,6 +665,7 @@ timeoutAudio.preload = "auto";
 boxingAudio.preload = "auto";
 jianjiAudio.preload = "auto";
 jianji2Audio.preload = "auto";
+jianji3Audio.preload = "auto";
 chaoxiaoAudio.preload = "auto";
 jiechuAudio.preload = "auto";
 Object.values(cardVoiceAudios).forEach((audio) => { audio.preload = "auto"; });
@@ -670,7 +673,7 @@ Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "aut
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
   huagai1Audio, huagai2Audio, guoAudio, huhuanAudio, jingshijieAudio, timeoutAudio,
-  boxingAudio, jianjiAudio, jianji2Audio, chaoxiaoAudio, jiechuAudio,
+  boxingAudio, jianjiAudio, jianji2Audio, jianji3Audio, chaoxiaoAudio, jiechuAudio,
   ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
 ].forEach((audio) => audio.load());
@@ -2393,6 +2396,7 @@ function resetToCard() {
   stopAudio(boxingAudio);
   stopAudio(jianjiAudio);
   stopAudio(jianji2Audio);
+  stopAudio(jianji3Audio);
   stopAudio(chaoxiaoAudio);
   stopAudio(jiechuAudio);
   stopAudio(huagai1Audio);
@@ -3288,7 +3292,7 @@ centerActionButtons[0]?.addEventListener("click", (event) => {
   });
 });
 // 第一排第二颗圆形按钮：
-// 短按仍播放 jianji；持续按住满 1 秒则播放 jianji2，并抑制松手后的短按 click。
+// 短按播放 jianji3；持续按住满 1 秒播放 jianji2，并抑制松手后的短按 click。
 const JIANJI2_LONG_PRESS_MS = 1000;
 const JIANJI2_MOVE_CANCEL_PX = 12;
 let jianji2LongPressTimer = 0;
@@ -3374,8 +3378,8 @@ centerActionButtons[1]?.addEventListener("click", (event) => {
     return;
   }
 
-  playAudio(jianjiAudio).catch((error) => {
-    console.warn("jianji 音效播放失败：", error);
+  playAudio(jianji3Audio).catch((error) => {
+    console.warn("jianji3 音效播放失败：", error);
   });
 });
 
