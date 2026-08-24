@@ -197,6 +197,7 @@ const AUDIO_CONFIG = {
   timeout: "./assets/audio/timeout.mp3?av=123",
   boxing: "./assets/audio/boxing.mp3?av=123",
   jianji: "./assets/audio/jianji.mp3?av=123",
+  jianji2: "./assets/audio/jianji2.mp3?av=123",
   chaoxiao: "./assets/audio/chaoxiao.mp3?av=123",
   jiechu: "./assets/audio/jiechu.mp3?av=123",
   cardVoices: {
@@ -629,6 +630,7 @@ const jingshijieAudio = new Audio(AUDIO_CONFIG.jingshijie);
 const timeoutAudio = new Audio(AUDIO_CONFIG.timeout);
 const boxingAudio = new Audio(AUDIO_CONFIG.boxing);
 const jianjiAudio = new Audio(AUDIO_CONFIG.jianji);
+const jianji2Audio = new Audio(AUDIO_CONFIG.jianji2);
 const chaoxiaoAudio = new Audio(AUDIO_CONFIG.chaoxiao);
 const jiechuAudio = new Audio(AUDIO_CONFIG.jiechu);
 const cardVoiceAudios = Object.fromEntries(
@@ -651,6 +653,7 @@ jingshijieAudio.preload = "auto";
 timeoutAudio.preload = "auto";
 boxingAudio.preload = "auto";
 jianjiAudio.preload = "auto";
+jianji2Audio.preload = "auto";
 chaoxiaoAudio.preload = "auto";
 jiechuAudio.preload = "auto";
 Object.values(cardVoiceAudios).forEach((audio) => { audio.preload = "auto"; });
@@ -658,7 +661,7 @@ Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "aut
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
   huagai1Audio, huagai2Audio, guoAudio, huhuanAudio, jingshijieAudio, timeoutAudio,
-  boxingAudio, jianjiAudio, chaoxiaoAudio, jiechuAudio,
+  boxingAudio, jianjiAudio, jianji2Audio, chaoxiaoAudio, jiechuAudio,
   ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
 ].forEach((audio) => audio.load());
@@ -2380,6 +2383,7 @@ function resetToCard() {
   stopAudio(timeoutAudio);
   stopAudio(boxingAudio);
   stopAudio(jianjiAudio);
+  stopAudio(jianji2Audio);
   stopAudio(chaoxiaoAudio);
   stopAudio(jiechuAudio);
   stopAudio(huagai1Audio);
@@ -3274,9 +3278,93 @@ centerActionButtons[0]?.addEventListener("click", (event) => {
     console.warn("boxing 音效播放失败：", error);
   });
 });
+// 第一排第二颗圆形按钮：
+// 短按仍播放 jianji；持续按住满 1 秒则播放 jianji2，并抑制松手后的短按 click。
+const JIANJI2_LONG_PRESS_MS = 1000;
+const JIANJI2_MOVE_CANCEL_PX = 12;
+let jianji2LongPressTimer = 0;
+let jianji2PressPointerId = null;
+let jianji2PressStart = null;
+let jianji2LongPressTriggered = false;
+let suppressNextJianjiClick = false;
+
+function clearJianji2LongPressTimer() {
+  clearTimeout(jianji2LongPressTimer);
+  jianji2LongPressTimer = 0;
+}
+
+centerActionButtons[1]?.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+
+  clearJianji2LongPressTimer();
+  jianji2PressPointerId = event.pointerId;
+  jianji2PressStart = { x: event.clientX, y: event.clientY };
+  jianji2LongPressTriggered = false;
+
+  // iPhone / PWA：先在真实用户手势里静音解锁 jianji2，
+  // 1 秒计时结束后才能稳定地由定时器真正播放。
+  primeAudio(jianji2Audio, () => false).catch(() => undefined);
+
+  centerActionButtons[1]?.setPointerCapture?.(event.pointerId);
+
+  jianji2LongPressTimer = window.setTimeout(() => {
+    if (jianji2PressPointerId !== event.pointerId) return;
+
+    jianji2LongPressTriggered = true;
+    suppressNextJianjiClick = true;
+    jianji2Audio.muted = false;
+
+    playAudio(jianji2Audio).catch((error) => {
+      console.warn("jianji2 长按音效播放失败：", error);
+    });
+  }, JIANJI2_LONG_PRESS_MS);
+});
+
+centerActionButtons[1]?.addEventListener("pointermove", (event) => {
+  if (
+    event.pointerId !== jianji2PressPointerId ||
+    !jianji2PressStart ||
+    jianji2LongPressTriggered
+  ) return;
+
+  const dx = event.clientX - jianji2PressStart.x;
+  const dy = event.clientY - jianji2PressStart.y;
+  if (Math.hypot(dx, dy) > JIANJI2_MOVE_CANCEL_PX) {
+    clearJianji2LongPressTimer();
+  }
+});
+
+centerActionButtons[1]?.addEventListener("pointerup", (event) => {
+  if (event.pointerId !== jianji2PressPointerId) return;
+
+  clearJianji2LongPressTimer();
+  jianji2PressPointerId = null;
+  jianji2PressStart = null;
+});
+
+centerActionButtons[1]?.addEventListener("pointercancel", (event) => {
+  if (event.pointerId !== jianji2PressPointerId) return;
+
+  clearJianji2LongPressTimer();
+  jianji2PressPointerId = null;
+  jianji2PressStart = null;
+  jianji2LongPressTriggered = false;
+});
+
+centerActionButtons[1]?.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
+});
+
 centerActionButtons[1]?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
+
+  if (suppressNextJianjiClick) {
+    suppressNextJianjiClick = false;
+    jianji2LongPressTriggered = false;
+    return;
+  }
+
   playAudio(jianjiAudio).catch((error) => {
     console.warn("jianji 音效播放失败：", error);
   });
