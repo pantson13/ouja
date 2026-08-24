@@ -32,6 +32,19 @@ body {
   pointer-events: none;
 }
 
+/* iOS Safari / PWA：整个应用是纯交互界面，不允许长按触发文本选择、图片菜单或“拷贝/翻译/分享”浮层。 */
+.scene,
+.scene * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.scene img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
 .scene {
   /* PWA / iPhone Safari：整个应用是全屏交互，不允许系统滚动/缩放手势抢走拖卡 pointer。 */
   touch-action: none;

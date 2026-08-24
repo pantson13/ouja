@@ -269,6 +269,15 @@ const SHATTER_MOTION = [
 ];
 
 const scene = document.querySelector("#scene");
+// iOS Safari / PWA：阻止长按时系统接管为“选择/拷贝/翻译/分享”。
+function suppressNativeLongPressUi(event) {
+  event.preventDefault();
+}
+
+scene.addEventListener("contextmenu", suppressNativeLongPressUi);
+scene.addEventListener("selectstart", suppressNativeLongPressUi);
+scene.addEventListener("dragstart", suppressNativeLongPressUi);
+
 const belt = document.querySelector("#belt");
 const beltEffect = document.querySelector("#beltEffect");
 const cardBox = document.querySelector("#cardBox");
