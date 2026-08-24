@@ -233,6 +233,8 @@ const AUDIO_CONFIG = {
     9: "./assets/audio/niujianglin.mp3?av=123",
     // WS10：rh 基础音效完整播放结束后，再接 rhjianglin。
     10: "./assets/audio/rhjianglin.mp3?av=123",
+    // WS12：f 基础音效完整播放结束后，再接 sdjianglin。
+    12: "./assets/audio/sdjianglin.mp3?av=123",
   },
 };
 
