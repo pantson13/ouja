@@ -1,0 +1,107 @@
+name: OUJA jianji3 hotfix
+
+on:
+  push:
+    paths:
+      - ".github/workflows/ouja-jianji3-hotfix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch script.js
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path("script.js")
+          s = p.read_text(encoding="utf-8")
+
+          def replace_once(old, new, label):
+              global s
+              if new in s:
+                  return
+              if old not in s:
+                  raise SystemExit(f"missing expected block: {label}")
+              s = s.replace(old, new, 1)
+
+          replace_once(
+              '  jianji2: "./assets/audio/jianji2.mp3?av=123",\n',
+              '  jianji2: "./assets/audio/jianji2.mp3?av=123",\n  jianji3: "./assets/audio/jianji3.mp3?av=123",\n',
+              "AUDIO_CONFIG jianji3",
+          )
+          replace_once(
+              'const jianji2Audio = new Audio(AUDIO_CONFIG.jianji2);\n',
+              'const jianji2Audio = new Audio(AUDIO_CONFIG.jianji2);\nconst jianji3Audio = new Audio(AUDIO_CONFIG.jianji3);\n',
+              "jianji3 Audio instance",
+          )
+          replace_once(
+              'jianji2Audio.preload = "auto";\n',
+              'jianji2Audio.preload = "auto";\njianji3Audio.preload = "auto";\n',
+              "jianji3 preload",
+          )
+          replace_once(
+              '  boxingAudio, jianjiAudio, jianji2Audio, chaoxiaoAudio, jiechuAudio,\n',
+              '  boxingAudio, jianjiAudio, jianji2Audio, jianji3Audio, chaoxiaoAudio, jiechuAudio,\n',
+              "jianji3 load list",
+          )
+          replace_once(
+              '  stopAudio(jianji2Audio);\n  stopAudio(chaoxiaoAudio);\n',
+              '  stopAudio(jianji2Audio);\n  stopAudio(jianji3Audio);\n  stopAudio(chaoxiaoAudio);\n',
+              "jianji3 reset stop",
+          )
+
+          s = s.replace(
+              '{ src: "./assets/images/an2.png", label: "播放 jianji 音效" },',
+              '{ src: "./assets/images/an2.png", label: "短按播放 jianji3，长按播放 jianji2" },',
+              1,
+          )
+          s = s.replace(
+              '// 短按仍播放 jianji；持续按住满 1 秒则播放 jianji2，并抑制松手后的短按 click。',
+              '// 短按播放 jianji3；持续按住满 1 秒播放 jianji2，并抑制松手后的短按 click。',
+              1,
+          )
+
+          old_click = '''  playAudio(jianjiAudio).catch((error) => {
+            console.warn("jianji 音效播放失败：", error);
+          });
+        });'''
+          new_click = '''  playAudio(jianji3Audio).catch((error) => {
+            console.warn("jianji3 音效播放失败：", error);
+          });
+        });'''
+          if new_click not in s:
+              if old_click not in s:
+                  raise SystemExit("missing an2 short-click jianji block")
+              s = s.replace(old_click, new_click, 1)
+
+          if 'playAudio(jianjiAudio)' in s:
+              raise SystemExit("jianji is still triggered by a click handler")
+          if 'playAudio(jianji2Audio)' not in s:
+              raise SystemExit("jianji2 long-press logic was lost")
+          if 'playAudio(jianji3Audio)' not in s:
+              raise SystemExit("jianji3 short-press logic missing")
+
+          p.write_text(s, encoding="utf-8")
+          PY
+
+          node --check script.js
+
+      - name: Commit change
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add script.js
+          if git diff --cached --quiet; then
+            echo "No script change needed."
+            exit 0
+          fi
+          git commit -m "Use jianji3 for an2 short press"
+          git push
