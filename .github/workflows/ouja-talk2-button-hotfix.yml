@@ -32,19 +32,15 @@ jobs:
                   raise SystemExit(f"missing expected block: {label}")
               return text.replace(old, new, 1)
 
-          # 第一排新增第4颗按钮，继续保持 237 的横向中心间距：99 + 237 = 336。
           s = rep(s,
               '    button3: { x: 99, y: 0, size: 157 },\n',
               '    button3: { x: 99, y: 0, size: 157 },\n    button4: { x: 336, y: 0, size: 157 },\n',
               'center button4 config')
-
-          # talk2 音频。
           s = rep(s,
               '  chaoxiao: "./assets/audio/chaoxiao.mp3?av=123",\n',
               '  chaoxiao: "./assets/audio/chaoxiao.mp3?av=123",\n  talk2: "./assets/audio/talk2.mp3?av=123",\n',
               'talk2 audio config')
 
-          # 第4颗按钮由脚本动态补入，避免碰 index.html。
           old_dom = '''if (centerActions && !document.querySelector("#centerActionButton3")) {
             const button3 = document.createElement("button");
             button3.className = "center-action-button center-action-button-3";
@@ -74,8 +70,6 @@ jobs:
               '    { src: "./assets/images/an3.png", label: "播放 chaoxiao 音效" },\n',
               '    { src: "./assets/images/an3.png", label: "播放 chaoxiao 音效" },\n    { src: "./assets/images/an3.png", label: "播放 talk2 音效" },\n',
               'button4 image config')
-
-          # Audio 实例 / preload / load / reset。
           s = rep(s,
               'const chaoxiaoAudio = new Audio(AUDIO_CONFIG.chaoxiao);\n',
               'const chaoxiaoAudio = new Audio(AUDIO_CONFIG.chaoxiao);\nconst talk2Audio = new Audio(AUDIO_CONFIG.talk2);\n',
@@ -93,7 +87,6 @@ jobs:
               '  stopAudio(chaoxiaoAudio);\n  stopAudio(talk2Audio);\n  stopAudio(jiechuAudio);\n',
               'talk2 reset stop')
 
-          # 布局 CSS 变量。
           old_vars = '''  scene.style.setProperty("--center-button-3-x", `${centerButtons.button3.x * scale}px`);
           scene.style.setProperty("--center-button-3-y", `${centerButtons.button3.y * scale}px`);
           scene.style.setProperty("--center-button-3-size", `${centerButtons.button3.size * scale}px`);'''
@@ -105,7 +98,6 @@ jobs:
           scene.style.setProperty("--center-button-4-size", `${centerButtons.button4.size * scale}px`);'''
           s = rep(s, old_vars, new_vars, 'button4 layout vars')
 
-          # 点击第4颗播放 talk2。
           old_event = '''centerActionButtons[2]?.addEventListener("click", (event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -129,7 +121,6 @@ jobs:
           });'''
           s = rep(s, old_event, new_event, 'talk2 button click')
 
-          # CSS 第4颗按钮。
           old_css = '''.center-action-button-3 {
             left: var(--center-button-3-x);
             top: var(--center-button-3-y);
@@ -153,7 +144,6 @@ jobs:
           '''
           c = rep(c, old_css, new_css, 'button4 CSS')
 
-          # 回归检查。
           must = [
               'button4: { x: 336, y: 0, size: 157 }',
               'talk2: "./assets/audio/talk2.mp3?av=123"',
@@ -188,3 +178,5 @@ jobs:
           fi
           git commit -m "Add talk2 button beside an3"
           git push
+
+# trigger 2026-08-26
