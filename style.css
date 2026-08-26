@@ -1402,6 +1402,13 @@ body {
   height: var(--center-button-3-size);
 }
 
+.center-action-button-4 {
+  left: var(--center-button-4-x);
+  top: var(--center-button-4-y);
+  width: var(--center-button-4-size);
+  height: var(--center-button-4-size);
+}
+
 
 
 .center-action-button img,
