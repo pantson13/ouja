@@ -87,16 +87,13 @@ jobs:
               '  stopAudio(chaoxiaoAudio);\n  stopAudio(talk2Audio);\n  stopAudio(jiechuAudio);\n',
               'talk2 reset stop')
 
-          old_vars = '''  scene.style.setProperty("--center-button-3-x", `${centerButtons.button3.x * scale}px`);
-          scene.style.setProperty("--center-button-3-y", `${centerButtons.button3.y * scale}px`);
-          scene.style.setProperty("--center-button-3-size", `${centerButtons.button3.size * scale}px`);'''
-          new_vars = '''  scene.style.setProperty("--center-button-3-x", `${centerButtons.button3.x * scale}px`);
-          scene.style.setProperty("--center-button-3-y", `${centerButtons.button3.y * scale}px`);
-          scene.style.setProperty("--center-button-3-size", `${centerButtons.button3.size * scale}px`);
-          scene.style.setProperty("--center-button-4-x", `${centerButtons.button4.x * scale}px`);
-          scene.style.setProperty("--center-button-4-y", `${centerButtons.button4.y * scale}px`);
-          scene.style.setProperty("--center-button-4-size", `${centerButtons.button4.size * scale}px`);'''
-          s = rep(s, old_vars, new_vars, 'button4 layout vars')
+          # 用单行锚点插入 button4 布局变量，避免缩进差异。
+          anchor = '  scene.style.setProperty("--center-button-3-size", `${centerButtons.button3.size * scale}px`);\n'
+          addition = anchor + '  scene.style.setProperty("--center-button-4-x", `${centerButtons.button4.x * scale}px`);\n  scene.style.setProperty("--center-button-4-y", `${centerButtons.button4.y * scale}px`);\n  scene.style.setProperty("--center-button-4-size", `${centerButtons.button4.size * scale}px`);\n'
+          if '--center-button-4-size' not in s:
+              if anchor not in s:
+                  raise SystemExit('missing button3 layout anchor')
+              s = s.replace(anchor, addition, 1)
 
           old_event = '''centerActionButtons[2]?.addEventListener("click", (event) => {
             event.preventDefault();
@@ -121,20 +118,14 @@ jobs:
           });'''
           s = rep(s, old_event, new_event, 'talk2 button click')
 
-          old_css = '''.center-action-button-3 {
+          css_anchor = '''.center-action-button-3 {
             left: var(--center-button-3-x);
             top: var(--center-button-3-y);
             width: var(--center-button-3-size);
             height: var(--center-button-3-size);
           }
           '''
-          new_css = '''.center-action-button-3 {
-            left: var(--center-button-3-x);
-            top: var(--center-button-3-y);
-            width: var(--center-button-3-size);
-            height: var(--center-button-3-size);
-          }
-
+          css_add = css_anchor + '''
           .center-action-button-4 {
             left: var(--center-button-4-x);
             top: var(--center-button-4-y);
@@ -142,7 +133,10 @@ jobs:
             height: var(--center-button-4-size);
           }
           '''
-          c = rep(c, old_css, new_css, 'button4 CSS')
+          if '.center-action-button-4 {' not in c:
+              if css_anchor not in c:
+                  raise SystemExit('missing button3 CSS anchor')
+              c = c.replace(css_anchor, css_add, 1)
 
           must = [
               'button4: { x: 336, y: 0, size: 157 }',
@@ -179,4 +173,4 @@ jobs:
           git commit -m "Add talk2 button beside an3"
           git push
 
-# trigger 2026-08-26
+# trigger retry 2026-08-26
