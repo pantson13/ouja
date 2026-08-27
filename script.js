@@ -193,6 +193,8 @@ const AUDIO_CONFIG = {
   huagai1: "./assets/audio/huagai1.mp3?av=123",
   huagai2: "./assets/audio/huagai2.mp3?av=123",
   guo: "./assets/audio/guo.mp3?av=123",
+  bgm1: "./assets/audio/bgm1.mp3?av=123",
+  bgm2: "./assets/audio/bgm2.mp3?av=123",
   huhuan: "./assets/audio/huhuan.mp3?av=123",
   jingshijie: "./assets/audio/jingshijie.mp3?av=123",
   timeout: "./assets/audio/timeout.mp3?av=123",
@@ -352,7 +354,7 @@ const BUTTON_IMAGE_CONFIG = {
     { src: "./assets/images/an3.png", label: "播放 talk2 音效" },
   ],
   side: [
-    { src: "./assets/images/an5.png", label: "播放 guo 音效" },
+    { src: "./assets/images/an5.png", label: "短按播放 bgm1，长按播放 bgm2" },
     { src: "./assets/images/an6.png", label: "播放 huhuan 音效" },
     { src: "./assets/images/an7.png", label: "播放 jingshijie 音效" },
     { src: "./assets/images/an8.png", label: "播放 timeout 音效" },
@@ -646,6 +648,8 @@ const chakaAudio = new Audio(AUDIO_CONFIG.chaka);
 const huagai1Audio = new Audio(AUDIO_CONFIG.huagai1);
 const huagai2Audio = new Audio(AUDIO_CONFIG.huagai2);
 const guoAudio = new Audio(AUDIO_CONFIG.guo);
+const bgm1Audio = new Audio(AUDIO_CONFIG.bgm1);
+const bgm2Audio = new Audio(AUDIO_CONFIG.bgm2);
 const huhuanAudio = new Audio(AUDIO_CONFIG.huhuan);
 const jingshijieAudio = new Audio(AUDIO_CONFIG.jingshijie);
 const timeoutAudio = new Audio(AUDIO_CONFIG.timeout);
@@ -672,6 +676,8 @@ chakaAudio.preload = "auto";
 huagai1Audio.preload = "auto";
 huagai2Audio.preload = "auto";
 guoAudio.preload = "auto";
+bgm1Audio.preload = "auto";
+bgm2Audio.preload = "auto";
 huhuanAudio.preload = "auto";
 jingshijieAudio.preload = "auto";
 timeoutAudio.preload = "auto";
@@ -687,7 +693,7 @@ Object.values(cardVoiceAudios).forEach((audio) => { audio.preload = "auto"; });
 Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "auto"; });
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
-  huagai1Audio, huagai2Audio, guoAudio, huhuanAudio, jingshijieAudio, timeoutAudio,
+  huagai1Audio, huagai2Audio, guoAudio, bgm1Audio, bgm2Audio, huhuanAudio, jingshijieAudio, timeoutAudio,
   boxing1Audio, boxing2Audio, jianjiAudio, jianji2Audio, jianji3Audio, chaoxiaoAudio, talk2Audio, jiechuAudio,
   ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
@@ -2408,6 +2414,8 @@ function resetToCard() {
   stopAudio(choukaAudio);
   stopAudio(chakaAudio);
   stopAudio(guoAudio);
+  stopAudio(bgm1Audio);
+  stopAudio(bgm2Audio);
   stopAudio(huhuanAudio);
   stopAudio(jingshijieAudio);
   stopAudio(timeoutAudio);
@@ -3273,11 +3281,92 @@ auxTransferCard?.addEventListener("pointerdown", (event) => {
   prepareChakaSfxFromGesture().catch(() => undefined);
   beginAuxKpcDrag(event, true, { usePointerCapture: true });
 });
+// 第二排第一颗圆形按钮 an5：
+// 短按播放 bgm1；持续按住满 1 秒播放 bgm2，并抑制松手后的短按 click。
+const BGM2_LONG_PRESS_MS = 1000;
+const BGM2_MOVE_CANCEL_PX = 12;
+let bgm2LongPressTimer = 0;
+let bgm2PressPointerId = null;
+let bgm2PressStart = null;
+let bgm2LongPressTriggered = false;
+let suppressNextBgm1Click = false;
+
+function clearBgm2LongPressTimer() {
+  clearTimeout(bgm2LongPressTimer);
+  bgm2LongPressTimer = 0;
+}
+
+sideButtons[0]?.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+
+  clearBgm2LongPressTimer();
+  bgm2PressPointerId = event.pointerId;
+  bgm2PressStart = { x: event.clientX, y: event.clientY };
+  bgm2LongPressTriggered = false;
+
+  // iPhone / PWA：在真实用户手势里先静音解锁 bgm2，
+  // 这样 1 秒定时器到点后仍能稳定播放。
+  primeAudio(bgm2Audio, () => false).catch(() => undefined);
+  sideButtons[0]?.setPointerCapture?.(event.pointerId);
+
+  bgm2LongPressTimer = window.setTimeout(() => {
+    if (bgm2PressPointerId !== event.pointerId) return;
+
+    bgm2LongPressTriggered = true;
+    suppressNextBgm1Click = true;
+    bgm2Audio.muted = false;
+
+    playAudio(bgm2Audio).catch((error) => {
+      console.warn("bgm2 长按音效播放失败：", error);
+    });
+  }, BGM2_LONG_PRESS_MS);
+});
+
+sideButtons[0]?.addEventListener("pointermove", (event) => {
+  if (
+    event.pointerId !== bgm2PressPointerId ||
+    !bgm2PressStart ||
+    bgm2LongPressTriggered
+  ) return;
+
+  const dx = event.clientX - bgm2PressStart.x;
+  const dy = event.clientY - bgm2PressStart.y;
+  if (Math.hypot(dx, dy) > BGM2_MOVE_CANCEL_PX) {
+    clearBgm2LongPressTimer();
+  }
+});
+
+sideButtons[0]?.addEventListener("pointerup", (event) => {
+  if (event.pointerId !== bgm2PressPointerId) return;
+  clearBgm2LongPressTimer();
+  bgm2PressPointerId = null;
+  bgm2PressStart = null;
+});
+
+sideButtons[0]?.addEventListener("pointercancel", (event) => {
+  if (event.pointerId !== bgm2PressPointerId) return;
+  clearBgm2LongPressTimer();
+  bgm2PressPointerId = null;
+  bgm2PressStart = null;
+  bgm2LongPressTriggered = false;
+});
+
+sideButtons[0]?.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
+});
+
 sideButtons[0]?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
-  playAudio(guoAudio).catch((error) => {
-    console.warn("guo 音效播放失败：", error);
+
+  if (suppressNextBgm1Click) {
+    suppressNextBgm1Click = false;
+    bgm2LongPressTriggered = false;
+    return;
+  }
+
+  playAudio(bgm1Audio).catch((error) => {
+    console.warn("bgm1 音效播放失败：", error);
   });
 });
 
