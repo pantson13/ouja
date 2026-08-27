@@ -196,7 +196,8 @@ const AUDIO_CONFIG = {
   huhuan: "./assets/audio/huhuan.mp3?av=123",
   jingshijie: "./assets/audio/jingshijie.mp3?av=123",
   timeout: "./assets/audio/timeout.mp3?av=123",
-  boxing: "./assets/audio/boxing.mp3?av=123",
+  boxing1: "./assets/audio/boxing1.mp3?av=123",
+  boxing2: "./assets/audio/boxing2.mp3?av=123",
   jianji: "./assets/audio/jianji.mp3?av=123",
   jianji2: "./assets/audio/jianji2.mp3?av=123",
   jianji3: "./assets/audio/jianji3.mp3?av=123",
@@ -345,7 +346,7 @@ const centerActionButtons = [...document.querySelectorAll(".center-action-button
 // OUJA 的 HTML 仍保留原按钮节点，第三颗 an3 由脚本补入。
 const BUTTON_IMAGE_CONFIG = {
   center: [
-    { src: "./assets/images/an1.png", label: "播放 boxing 音效" },
+    { src: "./assets/images/an1.png", label: "短按播放 boxing1，长按播放 boxing2" },
     { src: "./assets/images/an2.png", label: "短按播放 jianji3，长按播放 jianji2" },
     { src: "./assets/images/an3.png", label: "播放 chaoxiao 音效" },
     { src: "./assets/images/an3.png", label: "播放 talk2 音效" },
@@ -648,7 +649,8 @@ const guoAudio = new Audio(AUDIO_CONFIG.guo);
 const huhuanAudio = new Audio(AUDIO_CONFIG.huhuan);
 const jingshijieAudio = new Audio(AUDIO_CONFIG.jingshijie);
 const timeoutAudio = new Audio(AUDIO_CONFIG.timeout);
-const boxingAudio = new Audio(AUDIO_CONFIG.boxing);
+const boxing1Audio = new Audio(AUDIO_CONFIG.boxing1);
+const boxing2Audio = new Audio(AUDIO_CONFIG.boxing2);
 const jianjiAudio = new Audio(AUDIO_CONFIG.jianji);
 const jianji2Audio = new Audio(AUDIO_CONFIG.jianji2);
 const jianji3Audio = new Audio(AUDIO_CONFIG.jianji3);
@@ -673,7 +675,8 @@ guoAudio.preload = "auto";
 huhuanAudio.preload = "auto";
 jingshijieAudio.preload = "auto";
 timeoutAudio.preload = "auto";
-boxingAudio.preload = "auto";
+boxing1Audio.preload = "auto";
+boxing2Audio.preload = "auto";
 jianjiAudio.preload = "auto";
 jianji2Audio.preload = "auto";
 jianji3Audio.preload = "auto";
@@ -685,7 +688,7 @@ Object.values(cardVoiceFollowUpAudios).forEach((audio) => { audio.preload = "aut
 [
   kh1Audio, ydMusicAudio, mochaAudio, choukaAudio, chakaAudio,
   huagai1Audio, huagai2Audio, guoAudio, huhuanAudio, jingshijieAudio, timeoutAudio,
-  boxingAudio, jianjiAudio, jianji2Audio, jianji3Audio, chaoxiaoAudio, talk2Audio, jiechuAudio,
+  boxing1Audio, boxing2Audio, jianjiAudio, jianji2Audio, jianji3Audio, chaoxiaoAudio, talk2Audio, jiechuAudio,
   ...Object.values(cardVoiceAudios),
   ...Object.values(cardVoiceFollowUpAudios),
 ].forEach((audio) => audio.load());
@@ -2408,7 +2411,8 @@ function resetToCard() {
   stopAudio(huhuanAudio);
   stopAudio(jingshijieAudio);
   stopAudio(timeoutAudio);
-  stopAudio(boxingAudio);
+  stopAudio(boxing1Audio);
+  stopAudio(boxing2Audio);
   stopAudio(jianjiAudio);
   stopAudio(jianji2Audio);
   stopAudio(jianji3Audio);
@@ -3300,11 +3304,91 @@ sideButtons[3]?.addEventListener("click", (event) => {
     console.warn("timeout 音效播放失败：", error);
   });
 });
+// 第一排第一颗圆形按钮 an1：
+// 短按播放 boxing1；持续按住满 1 秒播放 boxing2，并抑制松手后的短按 click。
+const BOXING2_LONG_PRESS_MS = 1000;
+const BOXING2_MOVE_CANCEL_PX = 12;
+let boxing2LongPressTimer = 0;
+let boxing2PressPointerId = null;
+let boxing2PressStart = null;
+let boxing2LongPressTriggered = false;
+let suppressNextBoxing1Click = false;
+
+function clearBoxing2LongPressTimer() {
+  clearTimeout(boxing2LongPressTimer);
+  boxing2LongPressTimer = 0;
+}
+
+centerActionButtons[0]?.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+
+  clearBoxing2LongPressTimer();
+  boxing2PressPointerId = event.pointerId;
+  boxing2PressStart = { x: event.clientX, y: event.clientY };
+  boxing2LongPressTriggered = false;
+
+  // iPhone / PWA：先在真实用户手势里静音解锁 boxing2。
+  primeAudio(boxing2Audio, () => false).catch(() => undefined);
+  centerActionButtons[0]?.setPointerCapture?.(event.pointerId);
+
+  boxing2LongPressTimer = window.setTimeout(() => {
+    if (boxing2PressPointerId !== event.pointerId) return;
+
+    boxing2LongPressTriggered = true;
+    suppressNextBoxing1Click = true;
+    boxing2Audio.muted = false;
+
+    playAudio(boxing2Audio).catch((error) => {
+      console.warn("boxing2 长按音效播放失败：", error);
+    });
+  }, BOXING2_LONG_PRESS_MS);
+});
+
+centerActionButtons[0]?.addEventListener("pointermove", (event) => {
+  if (
+    event.pointerId !== boxing2PressPointerId ||
+    !boxing2PressStart ||
+    boxing2LongPressTriggered
+  ) return;
+
+  const dx = event.clientX - boxing2PressStart.x;
+  const dy = event.clientY - boxing2PressStart.y;
+  if (Math.hypot(dx, dy) > BOXING2_MOVE_CANCEL_PX) {
+    clearBoxing2LongPressTimer();
+  }
+});
+
+centerActionButtons[0]?.addEventListener("pointerup", (event) => {
+  if (event.pointerId !== boxing2PressPointerId) return;
+  clearBoxing2LongPressTimer();
+  boxing2PressPointerId = null;
+  boxing2PressStart = null;
+});
+
+centerActionButtons[0]?.addEventListener("pointercancel", (event) => {
+  if (event.pointerId !== boxing2PressPointerId) return;
+  clearBoxing2LongPressTimer();
+  boxing2PressPointerId = null;
+  boxing2PressStart = null;
+  boxing2LongPressTriggered = false;
+});
+
+centerActionButtons[0]?.addEventListener("contextmenu", (event) => {
+  event.preventDefault();
+});
+
 centerActionButtons[0]?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
-  playAudio(boxingAudio).catch((error) => {
-    console.warn("boxing 音效播放失败：", error);
+
+  if (suppressNextBoxing1Click) {
+    suppressNextBoxing1Click = false;
+    boxing2LongPressTriggered = false;
+    return;
+  }
+
+  playAudio(boxing1Audio).catch((error) => {
+    console.warn("boxing1 音效播放失败：", error);
   });
 });
 // 第一排第二颗圆形按钮：
