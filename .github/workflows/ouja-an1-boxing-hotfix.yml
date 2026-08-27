@@ -1,0 +1,201 @@
+name: OUJA an1 boxing hotfix
+
+on:
+  push:
+    paths:
+      - ".github/workflows/ouja-an1-boxing-hotfix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch script.js
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path("script.js")
+          s = p.read_text(encoding="utf-8")
+
+          def rep(old, new, label):
+              global s
+              if new in s:
+                  return
+              if old not in s:
+                  raise SystemExit(f"missing expected block: {label}")
+              s = s.replace(old, new, 1)
+
+          # an1 改为 boxing1 短按 / boxing2 长按 1 秒。
+          rep(
+              '  boxing: "./assets/audio/boxing.mp3?av=123",\n',
+              '  boxing1: "./assets/audio/boxing1.mp3?av=123",\n  boxing2: "./assets/audio/boxing2.mp3?av=123",\n',
+              'boxing audio config',
+          )
+          rep(
+              'const boxingAudio = new Audio(AUDIO_CONFIG.boxing);\n',
+              'const boxing1Audio = new Audio(AUDIO_CONFIG.boxing1);\nconst boxing2Audio = new Audio(AUDIO_CONFIG.boxing2);\n',
+              'boxing audio instances',
+          )
+          rep(
+              'boxingAudio.preload = "auto";\n',
+              'boxing1Audio.preload = "auto";\nboxing2Audio.preload = "auto";\n',
+              'boxing preload',
+          )
+          rep(
+              '  boxingAudio, jianjiAudio, jianji2Audio, jianji3Audio, chaoxiaoAudio, talk2Audio, jiechuAudio,\n',
+              '  boxing1Audio, boxing2Audio, jianjiAudio, jianji2Audio, jianji3Audio, chaoxiaoAudio, talk2Audio, jiechuAudio,\n',
+              'boxing load list',
+          )
+          rep(
+              '  stopAudio(boxingAudio);\n',
+              '  stopAudio(boxing1Audio);\n  stopAudio(boxing2Audio);\n',
+              'boxing reset stop',
+          )
+
+          s = s.replace(
+              '{ src: "./assets/images/an1.png", label: "播放 boxing 音效" },',
+              '{ src: "./assets/images/an1.png", label: "短按播放 boxing1，长按播放 boxing2" },',
+              1,
+          )
+
+          old_event = '''centerActionButtons[0]?.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            playAudio(boxingAudio).catch((error) => {
+              console.warn("boxing 音效播放失败：", error);
+            });
+          });'''
+
+          new_event = '''// 第一排第一颗圆形按钮 an1：
+          // 短按播放 boxing1；持续按住满 1 秒播放 boxing2，并抑制松手后的短按 click。
+          const BOXING2_LONG_PRESS_MS = 1000;
+          const BOXING2_MOVE_CANCEL_PX = 12;
+          let boxing2LongPressTimer = 0;
+          let boxing2PressPointerId = null;
+          let boxing2PressStart = null;
+          let boxing2LongPressTriggered = false;
+          let suppressNextBoxing1Click = false;
+
+          function clearBoxing2LongPressTimer() {
+            clearTimeout(boxing2LongPressTimer);
+            boxing2LongPressTimer = 0;
+          }
+
+          centerActionButtons[0]?.addEventListener("pointerdown", (event) => {
+            if (event.pointerType === "mouse" && event.button !== 0) return;
+
+            clearBoxing2LongPressTimer();
+            boxing2PressPointerId = event.pointerId;
+            boxing2PressStart = { x: event.clientX, y: event.clientY };
+            boxing2LongPressTriggered = false;
+
+            // iPhone / PWA：先在真实用户手势里静音解锁 boxing2。
+            primeAudio(boxing2Audio, () => false).catch(() => undefined);
+            centerActionButtons[0]?.setPointerCapture?.(event.pointerId);
+
+            boxing2LongPressTimer = window.setTimeout(() => {
+              if (boxing2PressPointerId !== event.pointerId) return;
+
+              boxing2LongPressTriggered = true;
+              suppressNextBoxing1Click = true;
+              boxing2Audio.muted = false;
+
+              playAudio(boxing2Audio).catch((error) => {
+                console.warn("boxing2 长按音效播放失败：", error);
+              });
+            }, BOXING2_LONG_PRESS_MS);
+          });
+
+          centerActionButtons[0]?.addEventListener("pointermove", (event) => {
+            if (
+              event.pointerId !== boxing2PressPointerId ||
+              !boxing2PressStart ||
+              boxing2LongPressTriggered
+            ) return;
+
+            const dx = event.clientX - boxing2PressStart.x;
+            const dy = event.clientY - boxing2PressStart.y;
+            if (Math.hypot(dx, dy) > BOXING2_MOVE_CANCEL_PX) {
+              clearBoxing2LongPressTimer();
+            }
+          });
+
+          centerActionButtons[0]?.addEventListener("pointerup", (event) => {
+            if (event.pointerId !== boxing2PressPointerId) return;
+            clearBoxing2LongPressTimer();
+            boxing2PressPointerId = null;
+            boxing2PressStart = null;
+          });
+
+          centerActionButtons[0]?.addEventListener("pointercancel", (event) => {
+            if (event.pointerId !== boxing2PressPointerId) return;
+            clearBoxing2LongPressTimer();
+            boxing2PressPointerId = null;
+            boxing2PressStart = null;
+            boxing2LongPressTriggered = false;
+          });
+
+          centerActionButtons[0]?.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+          });
+
+          centerActionButtons[0]?.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (suppressNextBoxing1Click) {
+              suppressNextBoxing1Click = false;
+              boxing2LongPressTriggered = false;
+              return;
+            }
+
+            playAudio(boxing1Audio).catch((error) => {
+              console.warn("boxing1 音效播放失败：", error);
+            });
+          });'''
+
+          rep(old_event, new_event, 'an1 boxing interaction')
+
+          # 回归检查：an2 / an3 / an4 / WS12 现有逻辑不能丢。
+          must = [
+              'boxing1: "./assets/audio/boxing1.mp3?av=123"',
+              'boxing2: "./assets/audio/boxing2.mp3?av=123"',
+              'playAudio(boxing1Audio)',
+              'playAudio(boxing2Audio)',
+              'const BOXING2_LONG_PRESS_MS = 1000;',
+              'playAudio(jianji3Audio)',
+              'playAudio(jianji2Audio)',
+              'playAudio(chaoxiaoAudio)',
+              'playAudio(talk2Audio)',
+              '12: "./assets/audio/sdjianglin.mp3?av=123"',
+          ]
+          for needle in must:
+              if needle not in s:
+                  raise SystemExit(f"regression check failed: {needle}")
+
+          if 'playAudio(boxingAudio)' in s:
+              raise SystemExit('old boxing click trigger still exists')
+
+          p.write_text(s, encoding="utf-8")
+          PY
+
+          node --check script.js
+
+      - name: Commit change
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add script.js
+          if git diff --cached --quiet; then
+            echo "No change needed."
+            exit 0
+          fi
+          git commit -m "Set an1 short boxing1 long boxing2"
+          git push
